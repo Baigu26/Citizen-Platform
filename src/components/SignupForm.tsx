@@ -80,6 +80,8 @@ export default function SignupForm() {
         options: {
           data: {
             full_name: formData.full_name.trim(),
+            city: formData.city.trim(),
+            zip_code: formData.zip_code.trim() || null,
           }
         }
       })
@@ -90,23 +92,6 @@ export default function SignupForm() {
 
       if (!authData.user) {
         throw new Error('No user data returned')
-      }
-
-      // Create the user's profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: authData.user.id,
-            email: formData.email.trim(),
-            full_name: formData.full_name.trim(),
-            city: formData.city.trim(),
-            zip_code: formData.zip_code.trim() || null,
-          }
-        ])
-
-      if (profileError) {
-        throw profileError
       }
 
       // Show success message
