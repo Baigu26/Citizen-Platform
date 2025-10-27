@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Profile } from '@/lib/supabase'
 import { createIssue } from '@/app/create-issue/actions'
+import Link from 'next/link'
 
 type CreateIssueFormProps = {
   profile: Profile
@@ -138,12 +139,12 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           >
             {isSubmitting ? 'Posting...' : 'Post Issue'}
           </button>
-          <a
+          <Link
             href="/"
             className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 px-4 py-3 font-medium"
           >
             Cancel
-          </a>
+          </Link>
         </>
       </div>
 

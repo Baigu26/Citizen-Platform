@@ -79,9 +79,10 @@ export default function CommentForm({
       // Refresh page to show new comment
       router.refresh()
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error posting comment:', error)
-      setError(error.message || 'Failed to post comment. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to post comment. Please try again.'
+        setError(errorMessage)
     } finally {
       setIsSubmitting(false)
     }

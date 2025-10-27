@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { getCurrentUser } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import VoteButtons from '@/components/VoteButtons'
 import CommentForm from '@/components/CommentForm'
 import Comment from '@/components/Comment'
@@ -150,9 +151,11 @@ export default async function IssueDetailPage({ params }: PageProps) {
             {/* Image if exists */}
             {issue.image_url && (
               <div className="mt-6">
-                <img 
+                <Image 
                   src={issue.image_url} 
                   alt={issue.title}
+                  width={800}
+                  height={600}
                   className="rounded-lg max-w-full h-auto"
                 />
               </div>

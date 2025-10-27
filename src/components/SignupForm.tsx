@@ -102,9 +102,10 @@ export default function SignupForm() {
         router.push('/')
       }, 2000)
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error signing up:', err)
-      setError(err.message || 'Failed to create account. Please try again.')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create account. Please try again.'
+      setError(errorMessage)
       setIsSubmitting(false)
     }
   }

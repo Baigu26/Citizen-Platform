@@ -48,7 +48,7 @@ export default function Comment({ comment, currentUserId, issueId }: CommentProp
       // Refresh page to show updated comments
       router.refresh()
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting comment:', error)
       alert('Failed to delete comment. Please try again.')
       setIsDeleting(false)

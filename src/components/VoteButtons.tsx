@@ -27,7 +27,7 @@ export default function VoteButtons({
     setUserVote(currentUserVote)
   }, [initialVoteCount, currentUserVote])
 
-  async function handleVote(voteType: 'up' | 'down', event: React.MouseEvent) { 
+  async function handleVote(voteType: 'up' | 'down') { 
     // Check if user is logged in
     if (!userId) {
       alert('Please log in to vote')
@@ -99,7 +99,7 @@ export default function VoteButtons({
   <div className="flex flex-col items-center">
     {/* Upvote Button */}
     <button
-      onClick={(e) => handleVote('up', e)}
+      onClick={() => handleVote('up')}
       disabled={isVoting}
       className={`transition-colors disabled:opacity-50 ${
         userVote === 'up'
@@ -120,7 +120,7 @@ export default function VoteButtons({
 
     {/* Downvote Button */}
     <button
-      onClick={(e) => handleVote('down', e)}
+      onClick={() => handleVote('down')}
       disabled={isVoting}
       className={`transition-colors disabled:opacity-50 ${
         userVote === 'down'
