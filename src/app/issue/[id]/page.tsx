@@ -1,15 +1,22 @@
 import { supabase } from '@/lib/supabase'
+import { getCurrentUser } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import VoteButtons from '@/components/VoteButtons'
+import CommentForm from '@/components/CommentForm'
+import Comment from '@/components/Comment'
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function IssueDetailPage({ params }: PageProps) {
-  const { id } = params
+  const { id } = await params
+
+  // Get current user
+  const currentUser = await getCurrentUser()
 
   // Fetch the specific issue from the database
   const { data: issue, error } = await supabase
@@ -22,6 +29,29 @@ export default async function IssueDetailPage({ params }: PageProps) {
   if (error || !issue) {
     notFound()
   }
+
+  // Get the current user's vote for this issue (if they're logged in)
+  let currentUserVote: 'up' | 'down' | null = null
+  if (currentUser) {
+    const { data: voteData } = await supabase
+      .from('votes')
+      .select('vote_type')
+      .eq('user_id', currentUser.user.id)
+      .eq('issue_id', id)
+      .single()
+    
+    if (voteData) {
+      currentUserVote = voteData.vote_type as 'up' | 'down'
+    }
+  }
+
+  // Get all comments for this issue
+  const { data: comments } = await supabase
+    .from('comments')
+    .select('*')
+    .eq('issue_id', id)
+    .is('parent_comment_id', null) // Only get top-level comments (not replies)
+    .order('created_at', { ascending: false })
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -45,20 +75,13 @@ export default async function IssueDetailPage({ params }: PageProps) {
           {/* Issue Header */}
           <div className="border-b border-gray-200 p-6">
             <div className="flex items-start gap-6">
-              {/* Vote Section */}
-              <div className="flex flex-col items-center">
-                <button className="text-gray-400 hover:text-green-600 transition-colors">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                  </svg>
-                </button>
-                <span className="text-3xl font-bold text-gray-700 my-2">{issue.vote_count}</span>
-                <button className="text-gray-400 hover:text-red-600 transition-colors">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
+              {/* Vote Section - Now with functional buttons! */}
+              <VoteButtons
+                issueId={issue.id}
+                initialVoteCount={issue.vote_count}
+                userId={currentUser?.user.id || null}
+                currentUserVote={currentUserVote}
+              />
 
               {/* Issue Info */}
               <div className="flex-1">
@@ -136,25 +159,41 @@ export default async function IssueDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Comments Section Placeholder */}
+          {/* Comments Section */}
           <div className="border-t border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
                 Comments ({issue.comment_count})
               </h2>
             </div>
-            
-            {issue.comment_count === 0 ? (
+
+            {/* Comment Form */}
+            <div className="mb-6">
+              <CommentForm
+                issueId={issue.id}
+                userId={currentUser?.user.id || null}
+              />
+            </div>
+
+            {/* Comments List */}
+            {comments && comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <Comment
+                    key={comment.id}
+                    comment={comment}
+                    currentUserId={currentUser?.user.id || null}
+                    issueId={issue.id}
+                  />
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-8 text-gray-500">
                 <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
                 <p className="font-medium">No comments yet</p>
                 <p className="text-sm mt-1">Be the first to share your thoughts!</p>
-              </div>
-            ) : (
-              <div className="bg-gray-50 rounded-lg p-4 text-gray-600 text-center">
-                <p>Comments will be displayed here soon!</p>
               </div>
             )}
           </div>

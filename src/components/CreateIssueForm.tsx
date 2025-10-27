@@ -42,7 +42,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
       </div>
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -52,12 +52,12 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           placeholder="Briefly describe the issue"
           maxLength={200}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Description <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -66,21 +66,21 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           placeholder="Provide detailed information about the issue, why it matters, and any suggested solutions..."
           rows={6}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
         />
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           Be specific and provide context to help others understand the issue.
         </p>
       </div>
 
       <div>
-        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Category
         </label>
         <select
           id="category"
           name="category"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900 dark:bg-gray-800 dark:text-white dark:border-gray-600"
         >
           <option value="">Select a category (optional)</option>
           <option value="Safety">Safety</option>
@@ -98,7 +98,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             City <span className="text-red-500">*</span>
           </label>
           <input
@@ -108,12 +108,12 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             defaultValue={profile.city || ''}
             placeholder="e.g., Boston"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
         </div>
 
         <div>
-          <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Zip Code
           </label>
           <input
@@ -124,7 +124,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             placeholder="e.g., 02101"
             maxLength={5}
             pattern="[0-9]{5}"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
         </div>
       </div>
@@ -140,7 +140,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           </button>
           <a
             href="/"
-            className="text-gray-600 hover:text-gray-800 px-4 py-3 font-medium"
+            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 px-4 py-3 font-medium"
           >
             Cancel
           </a>
