@@ -36,9 +36,9 @@ export default function SortDropdown({ currentSort }: SortDropdownProps) {
         onChange={(e) => handleSortChange(e.target.value)}
         className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none"
       >
-        <option value="top">🔥 Top (Most Votes)</option>
-        <option value="recent">🕒 Recent (Newest First)</option>
-        <option value="discussed">💬 Most Discussed (Most Comments)</option>
+        <option value="top">Most Votes</option>
+        <option value="recent">Newest First</option>
+        <option value="discussed">Most Comments</option>
       </select>
     </div>
   )
