@@ -9,9 +9,141 @@ type CreateIssueFormProps = {
   profile: Profile
 }
 
+// List of major Massachusetts cities
+const MA_CITIES = [
+  'Boston',
+  'Worcester',
+  'Springfield',
+  'Cambridge',
+  'Lowell',
+  'Brockton',
+  'Quincy',
+  'Lynn',
+  'New Bedford',
+  'Fall River',
+  'Newton',
+  'Somerville',
+  'Framingham',
+  'Lawrence',
+  'Waltham',
+  'Haverhill',
+  'Malden',
+  'Brookline',
+  'Plymouth',
+  'Medford',
+  'Taunton',
+  'Chicopee',
+  'Weymouth',
+  'Revere',
+  'Peabody',
+  'Methuen',
+  'Barnstable',
+  'Pittsfield',
+  'Attleboro',
+  'Arlington',
+  'Everett',
+  'Salem',
+  'Westfield',
+  'Leominster',
+  'Fitchburg',
+  'Beverly',
+  'Holyoke',
+  'Marlborough',
+  'Woburn',
+  'Chelsea',
+  'Amherst',
+  'Braintree',
+  'Shrewsbury',
+  'Dartmouth',
+  'Billerica',
+  'Randolph',
+  'Tewksbury',
+  'Natick',
+  'Northampton',
+  'Gloucester',
+  'Franklin',
+  'Watertown',
+  'Needham',
+  'Chelmsford',
+  'Agawam',
+  'Andover',
+  'West Springfield',
+  'Wellesley',
+  'Melrose',
+  'Milford',
+  'Milton',
+  'Dracut',
+  'Southbridge',
+  'Stoughton',
+  'Lexington',
+  'Burlington',
+  'Easton',
+  'Mansfield',
+  'Westford',
+  'Winchester',
+  'Norwood',
+  'Reading',
+  'Belmont',
+  'Dedham',
+  'Wilmington',
+  'Grafton',
+  'Middleborough',
+  'Gardner',
+  'Danvers',
+  'Auburn',
+  'Wakefield',
+  'Ludlow',
+  'Saugus',
+  'Canton',
+  'Newburyport',
+  'Falmouth',
+  'Winthrop',
+  'Stoneham',
+  'Marshfield',
+  'Acton',
+  'Somerset',
+  'Longmeadow',
+  'North Andover',
+  'Fairhaven',
+  'Bridgewater',
+  'Scituate',
+  'Yarmouth',
+].sort()
+
 export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
+  // Handle image preview
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image must be less than 5MB')
+        e.target.value = ''
+        return
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('File must be an image')
+        e.target.value = ''
+        return
+      }
+
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      setError(null)
+    } else {
+      setImagePreview(null)
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true)
@@ -74,6 +206,36 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         </p>
       </div>
 
+      {/* Image Upload Section */}
+      <div>
+        <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Add Photo (Optional)
+        </label>
+        <input
+          type="file"
+          id="image"
+          name="image"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+        />
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+        </p>
+        
+        {/* Image Preview */}
+        {imagePreview && (
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="rounded-lg max-w-md h-auto border border-gray-300"
+            />
+          </div>
+        )}
+      </div>
+
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Category
@@ -98,19 +260,25 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* City Dropdown */}
         <div>
           <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             City <span className="text-red-500">*</span>
           </label>
-          <input
-            type="text"
+          <select
             id="city"
             name="city"
             defaultValue={profile.city || ''}
-            placeholder="e.g., Boston"
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-          />
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+          >
+            <option value="">Select a city</option>
+            {MA_CITIES.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

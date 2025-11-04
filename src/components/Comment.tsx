@@ -57,13 +57,14 @@ export default function Comment({ comment, currentUserId, issueId }: CommentProp
   }
 
   // Format the date nicely
-  const formattedDate = new Date(comment.created_at).toLocaleDateString('en-US', {
+  const formattedDate = new Date(comment.created_at).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-  })
+    hour12: true
+  }).replace(',', ' at')
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4">
