@@ -12,6 +12,7 @@ export type Issue = {
   id: string
   title: string
   description: string
+  why_it_matters: string | null
   category: string | null
   city: string
   zip_code: string | null

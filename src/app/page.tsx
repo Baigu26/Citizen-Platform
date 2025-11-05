@@ -108,7 +108,7 @@ export default async function HomePage({
           <div className="max-w-6xl mx-auto px-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold">People's Voice</h1>
+                <h1 className="text-3xl font-bold">People&apos;s Voice</h1>
                 <p className="text-cyan-100 mt-1">Your city, your voice</p>
               </div>
               
@@ -190,7 +190,7 @@ export default async function HomePage({
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold">People's Voice</h1>
+              <h1 className="text-3xl font-bold">People&apos;s Voice</h1>
               <p className="text-cyan-100 mt-1">Your city, your voice</p>
             </div>
             
