@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Profile } from '@/lib/supabase'
 import { createIssue } from '@/app/create-issue/actions'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type CreateIssueFormProps = {
   profile: Profile
@@ -268,9 +269,11 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         {imagePreview && (
           <div className="mt-4">
             <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-            <img
+            <Image
               src={imagePreview}
               alt="Preview"
+              width={400}
+              height={300}
               className="rounded-lg max-w-md h-auto border border-gray-300"
             />
           </div>

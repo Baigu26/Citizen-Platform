@@ -14,7 +14,7 @@ export default function LoginPage() {
             Back to Home
           </Link>
           <h1 className="text-3xl font-bold mt-2">Welcome Back</h1>
-          <p className="text-cyan-100 mt-1">Log in to your People's Voice account</p>
+          <p className="text-cyan-100 mt-1">Log in to your People&apos;s Voice account</p>
         </div>
       </header>
 
