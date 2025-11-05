@@ -121,7 +121,7 @@ export default function SignupForm() {
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
         <p className="text-gray-600 mb-4">
-          Welcome to MassVoice. Redirecting you to the homepage...
+          Welcome to People's Voice. Redirecting you to the homepage...
         </p>
       </div>
     )

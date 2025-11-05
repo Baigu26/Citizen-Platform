@@ -170,8 +170,29 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           <span className="font-medium">Posting as:</span> {profile.full_name}
         </p>
         <p className="text-xs text-blue-600 mt-1">
-          Your name will be displayed as the author of this issue.
+          Your name will be displayed as the author of this proposal.
         </p>
+      </div>
+
+      {/* 311 Disclaimer */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="flex gap-3">
+          <div className="text-yellow-600 flex-shrink-0 mt-0.5">⚠️</div>
+          <div className="text-sm text-yellow-800">
+            <p className="font-medium mb-1">Need to report an issue like potholes, trash pickup, or noise complaints?</p>
+            <p>
+              Those are handled through 311 →{' '}
+              <a 
+                href="https://www.mass.gov/info-details/find-your-local-311-service" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-yellow-900 underline font-medium hover:text-yellow-700"
+              >
+                Find your local 311 service
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -182,27 +203,47 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           type="text"
           id="title"
           name="title"
-          placeholder="Briefly describe the issue"
+          placeholder='Example: "Ban single-use plastic bags" or "Require crosswalk lights near schools"'
           maxLength={200}
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
         />
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Give your idea a short, clear title.
+        </p>
       </div>
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Description <span className="text-red-500">*</span>
+          What would you like to change? <span className="text-red-500">*</span>
         </label>
         <textarea
           id="description"
           name="description"
-          placeholder="Provide detailed information about the issue, why it matters, and any suggested solutions..."
-          rows={6}
+          placeholder="What rule, law, or regulation would you like to create or change? Focus on the policy itself. What should the city government require, allow, or improve?"
+          rows={4}
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
         />
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Be specific and provide context to help others understand the issue.
+          Describe the policy, law, or regulation you want to create or change.
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="why_it_matters" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Why it matters <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          id="why_it_matters"
+          name="why_it_matters"
+          placeholder="Why should this law exist? What problem or opportunity does it address?"
+          rows={4}
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+        />
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Explain the reasoning and impact of your proposal.
         </p>
       </div>
 
@@ -238,25 +279,27 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
 
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Category
+          Category <span className="text-red-500">*</span>
         </label>
         <select
           id="category"
           name="category"
+          required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900 dark:bg-gray-800 dark:text-white dark:border-gray-600"
         >
-          <option value="">Select a category (optional)</option>
-          <option value="Safety">Safety</option>
-          <option value="Transportation">Transportation</option>
-          <option value="Infrastructure">Infrastructure</option>
-          <option value="Environment">Environment</option>
-          <option value="Education">Education</option>
-          <option value="Recreation">Recreation</option>
-          <option value="Quality of Life">Quality of Life</option>
-          <option value="Health">Health</option>
-          <option value="Economy">Economy</option>
-          <option value="Other">Other</option>
+          <option value="">Select a category</option>
+          <option value="Environment & Sustainability">Environment & Sustainability</option>
+          <option value="Housing & Zoning">Housing & Zoning</option>
+          <option value="Transportation & Infrastructure">Transportation & Infrastructure</option>
+          <option value="Public Safety">Public Safety</option>
+          <option value="Health & Human Services">Health & Human Services</option>
+          <option value="Education & Youth">Education & Youth</option>
+          <option value="Governance & Transparency">Governance & Transparency</option>
+          <option value="Economic Development">Economic Development</option>
         </select>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Not sure? Pick the one that fits best — our review team can reclassify later.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -305,7 +348,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             disabled={isSubmitting}
             className="bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Posting...' : 'Post Issue'}
+            {isSubmitting ? 'Submitting Proposal...' : 'Submit Proposal'}
           </button>
           <Link
             href="/"
@@ -320,12 +363,12 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         <div className="flex gap-3">
           <div className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5">ℹ️</div>
           <div className="text-sm text-blue-800">
-            <p className="font-medium mb-1">Before posting:</p>
+            <p className="font-medium mb-1">Before submitting:</p>
             <ul className="list-disc list-inside space-y-1 text-blue-700">
-              <li>Search to see if a similar issue already exists</li>
+              <li>Search to see if a similar proposal already exists</li>
               <li>Be respectful and constructive in your description</li>
-              <li>Include specific details (locations, dates, etc.)</li>
-              <li>Your issue will be visible to the public and local officials</li>
+              <li>Focus on the policy change, not individual complaints</li>
+              <li>Your proposal will be visible to the public and local officials</li>
             </ul>
           </div>
         </div>

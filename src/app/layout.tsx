@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MassVoice",
+  title: "People's Voice",
   description: "Your city, your voice",
 };
 
