@@ -65,7 +65,7 @@ export default async function IssueDetailPage({ params }: PageProps) {
             </svg>
             Back to Issues
           </Link>
-          <h1 className="text-3xl font-bold mt-2">MassVoice</h1>
+          <h1 className="text-3xl font-bold mt-2">People&apos;s Voice</h1>
         </div>
       </header>
 
