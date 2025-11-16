@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     // Get user profile for author name
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name')
+      .select('full_name, is_admin, admin_city')
       .eq('id', user.id)
       .single()
 
@@ -55,15 +55,21 @@ export async function POST(request: Request) {
       )
     }
 
-    // Insert the comment
+    // Check if user is admin and set appropriate display name
+    const isAdmin = profile.is_admin || false
+    const displayName = isAdmin 
+      ? `Administrator - ${profile.admin_city}` 
+      : (profile.full_name || 'Anonymous')
+
+    // Insert the comment - FIXED: Changed variable names
     const { data: comment, error: insertError } = await supabase
       .from('comments')
       .insert({
         issue_id: issueId,
         user_id: user.id,
-        parent_comment_id: parentCommentId || null,
         content: content.trim(),
-        author_name: profile.full_name || 'Anonymous',
+        author_name: displayName,
+        parent_comment_id: parentCommentId || null,
       })
       .select()
       .single()
@@ -78,6 +84,7 @@ export async function POST(request: Request) {
 
     // Revalidate the issue page to show new comment
     revalidatePath(`/issue/${issueId}`)
+    revalidatePath(`/admin/issue/${issueId}`)
 
     return NextResponse.json({ 
       success: true, 
@@ -135,6 +142,7 @@ export async function DELETE(request: Request) {
     // Revalidate the issue page
     if (issueId) {
       revalidatePath(`/issue/${issueId}`)
+      revalidatePath(`/admin/issue/${issueId}`)
     }
 
     return NextResponse.json({ success: true })

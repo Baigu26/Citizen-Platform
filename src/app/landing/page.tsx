@@ -1,9 +1,42 @@
 import Link from 'next/link'
 import { getCurrentUser } from '@/lib/supabase-server'
 import UserMenu from '@/components/UserMenu'
+import { supabase } from '@/lib/supabase'
+import { Issue } from '@/lib/supabase'
 
 export default async function LandingPage() {
   const currentUser = await getCurrentUser()
+
+  // Fetch issues for user's city if logged in
+  let cityIssues: Issue[] = []
+  if (currentUser?.profile?.city) {
+    const { data } = await supabase
+      .from('issues')
+      .select('*')
+      .eq('city', currentUser.profile.city)
+      .order('created_at', { ascending: false })
+      .limit(6)
+    
+    cityIssues = data || []
+  }
+
+  // Helper function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'New':
+      case 'Open':
+        return 'bg-green-500'
+      case 'Under Review':
+        return 'bg-yellow-500'
+      case 'In Progress':
+        return 'bg-blue-500'
+      case 'Closed':
+      case 'Completed':
+        return 'bg-red-500'
+      default:
+        return 'bg-gray-500'
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -142,6 +175,78 @@ export default async function LandingPage() {
         </div>
       </div>
 
+      {/* Issues from Your City Section */}
+      {currentUser && cityIssues.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900">
+                Issues in {currentUser.profile.city}
+              </h2>
+              <p className="text-gray-600 mt-2">
+                Recent policy proposals from your community
+              </p>
+            </div>
+            <Link
+              href={`/city/${currentUser.profile.city}`}
+              className="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-2"
+            >
+              View All
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cityIssues.map((issue: Issue) => (
+              <Link
+                key={issue.id}
+                href={`/issue/${issue.id}?from=home`}
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 line-clamp-2 flex-1">
+                    {issue.title}
+                  </h3>
+                  <span
+                    className={`${getStatusColor(
+                      issue.status
+                    )} text-white text-xs font-semibold px-3 py-1 rounded-full ml-2 flex-shrink-0`}
+                  >
+                    {issue.status}
+                  </span>
+                </div>
+
+                <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                  {issue.description}
+                </p>
+
+                <div className="flex items-center justify-between text-sm pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-1 text-blue-600 font-semibold">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                    </svg>
+                    {issue.vote_count} Votes
+                  </div>
+                  <div className="flex items-center gap-1 text-gray-600">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
+                    </svg>
+                    {issue.comment_count} Comments
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -158,6 +263,9 @@ export default async function LandingPage() {
               </Link>
               <Link href="/contact" className="hover:text-gray-300">
                 Contact Us
+              </Link>
+              <Link href="/admin/login" className="hover:text-gray-300">
+                City Official Login
               </Link>
             </div>
 

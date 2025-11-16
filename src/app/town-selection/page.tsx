@@ -149,7 +149,7 @@ export default async function TownSelectionPage() {
           {cities.map((city) => (
             <Link
               key={city.name}
-              href={`/?city=${city.name}`}
+              href={`/city/${city.name}`}
               className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               {/* City Image */}

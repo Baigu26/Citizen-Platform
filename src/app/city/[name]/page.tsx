@@ -3,17 +3,31 @@ import { getCurrentUser } from '@/lib/supabase-server'
 import { supabase } from '@/lib/supabase'
 import UserMenu from '@/components/UserMenu'
 import { Issue } from '@/lib/supabase'
+import { notFound } from 'next/navigation'
 
-export default async function TrendingPage() {
+type PageProps = {
+  params: Promise<{
+    name: string
+  }>
+}
+
+export default async function CityPage({ params }: PageProps) {
+  const { name: cityName } = await params
   const currentUser = await getCurrentUser()
 
-  // Get trending issues (sorted by votes and recent activity)
-  const { data: trendingIssues } = await supabase
+  // Decode city name from URL
+  const decodedCityName = decodeURIComponent(cityName)
+
+  // Fetch issues for this city
+  const { data: issues } = await supabase
     .from('issues')
     .select('*')
-    .order('vote_count', { ascending: false })
-    .order('comment_count', { ascending: false })
-    .limit(20)
+    .eq('city', decodedCityName)
+    .order('created_at', { ascending: false })
+
+  if (!issues) {
+    notFound()
+  }
 
   // Helper function to get status color
   const getStatusColor = (status: string) => {
@@ -122,7 +136,7 @@ export default async function TrendingPage() {
             <Link href="/town-selection" className="hover:text-blue-200 transition-colors font-medium">
               Town Selection
             </Link>
-            <Link href="/trending" className="hover:text-blue-200 transition-colors font-medium border-b-2 border-white">
+            <Link href="/trending" className="hover:text-blue-200 transition-colors font-medium">
               Trending Posts
             </Link>
             <Link href="/settings" className="hover:text-blue-200 transition-colors font-medium">
@@ -134,18 +148,30 @@ export default async function TrendingPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">Trending</h1>
+        <div className="mb-8">
+          <Link href="/town-selection" className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2 mb-4">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Town Selection
+          </Link>
+          <h1 className="text-4xl font-bold text-gray-900 mt-2">
+            Issues in {decodedCityName}
+          </h1>
+          <p className="text-gray-600 mt-2">
+            {issues.length} {issues.length === 1 ? 'proposal' : 'proposals'} from your community
+          </p>
+        </div>
 
-        {/* Trending Issues Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trendingIssues && trendingIssues.length > 0 ? (
-            trendingIssues.map((issue: Issue) => (
+        {/* Issues Grid */}
+        {issues.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {issues.map((issue: Issue) => (
               <Link
                 key={issue.id}
-                href={`/issue/${issue.id}?from=trending`}
+                href={`/issue/${issue.id}?from=city`}
                 className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6"
               >
-                {/* Status Badge */}
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-gray-900 line-clamp-2 flex-1">
                     {issue.title}
@@ -159,15 +185,10 @@ export default async function TrendingPage() {
                   </span>
                 </div>
 
-                {/* City */}
-                <p className="text-blue-600 font-semibold mb-3">{issue.city}</p>
-
-                {/* Description */}
                 <p className="text-gray-600 text-sm line-clamp-3 mb-4">
                   {issue.description}
                 </p>
 
-                {/* Stats */}
                 <div className="flex items-center justify-between text-sm pt-4 border-t border-gray-200">
                   <div className="flex items-center gap-1 text-blue-600 font-semibold">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -188,31 +209,37 @@ export default async function TrendingPage() {
                   </div>
                 </div>
               </Link>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-16">
-              <svg
-                className="w-16 h-16 text-gray-400 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No Trending Issues Yet
-              </h3>
-              <p className="text-gray-600">
-                Be the first to post an issue and start the conversation!
-              </p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <svg
+              className="w-16 h-16 text-gray-400 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              No Issues Yet in {decodedCityName}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Be the first to post a policy proposal for your community!
+            </p>
+            <Link
+              href="/create-issue"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              Create First Post
+            </Link>
+          </div>
+        )}
       </main>
 
       {/* Footer */}

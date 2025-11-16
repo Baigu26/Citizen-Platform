@@ -23,6 +23,9 @@ export type Issue = {
   comment_count: number
   created_at: string
   user_id: string | null
+  official_response: string | null
+  official_response_date: string | null
+  responded_by: string | null
 }
 
 export type Profile = {
