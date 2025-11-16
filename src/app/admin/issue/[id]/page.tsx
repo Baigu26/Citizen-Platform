@@ -3,8 +3,8 @@ import { supabase } from '@/lib/supabase'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import AdminNav from '@/components/AdminNav'
-import AdminIssueActions from '@/components/AdminIssueActions'
+import AdminNav from '@/components/admin/AdminNav'
+import AdminIssueActions from '@/components/admin/AdminIssueActions'
 
 type PageProps = {
   params: Promise<{

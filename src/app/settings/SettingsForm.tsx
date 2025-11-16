@@ -73,9 +73,9 @@ export default function SettingsForm({ profile }: { profile: Profile }) {
       setTimeout(() => {
         window.location.reload()
       }, 1500)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating profile:', error)
-      setMessage({ type: 'error', text: error.message || 'Failed to update profile. Please try again.' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to update profile. Please try again.' })
     } finally {
       setSaving(false)
     }
@@ -106,9 +106,9 @@ export default function SettingsForm({ profile }: { profile: Profile }) {
       if (error) throw error
 
       setMessage({ type: 'success', text: 'Notification preferences saved!' })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating notifications:', error)
-      setMessage({ type: 'error', text: error.message || 'Failed to save preferences. Please try again.' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to save preferences. Please try again.' })
     } finally {
       setSaving(false)
     }
@@ -149,9 +149,9 @@ export default function SettingsForm({ profile }: { profile: Profile }) {
 
       setMessage({ type: 'success', text: 'Password changed successfully!' })
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error changing password:', error)
-      setMessage({ type: 'error', text: error.message || 'Failed to change password.' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to change password.' })
     } finally {
       setSaving(false)
     }
@@ -191,7 +191,7 @@ export default function SettingsForm({ profile }: { profile: Profile }) {
 
       // Redirect to home
       window.location.href = '/landing'
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting account:', error)
       setMessage({ type: 'error', text: 'Failed to delete account. Please contact support.' })
       setSaving(false)
@@ -257,9 +257,9 @@ export default function SettingsForm({ profile }: { profile: Profile }) {
       link.click()
 
       setMessage({ type: 'success', text: 'Your data has been downloaded!' })
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error downloading data:', error)
-      setMessage({ type: 'error', text: error.message || 'Failed to download data. Please try again.' })
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to download data. Please try again.' })
     } finally {
       setSaving(false)
     }

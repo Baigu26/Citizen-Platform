@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Issue } from '@/lib/supabase'
 
 type AdminIssueActionsProps = {
@@ -143,17 +144,17 @@ export default function AdminIssueActions({ issue, adminName }: AdminIssueAction
 
         {/* View Public Link */}
         <div className="pt-4 border-t border-gray-200">
-          
+          <Link
             href={`/issue/${issue.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors"
-          <a>
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
             View Public Page
-          </a>
+          </Link>
         </div>
       </div>
     </div>

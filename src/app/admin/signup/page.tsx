@@ -1,4 +1,4 @@
-import AdminSignupForm from '@/components/AdminSignupForm'
+import AdminSignupForm from '@/components/admin/AdminSignupForm'
 import Link from 'next/link'
 
 export default function AdminSignupPage() {

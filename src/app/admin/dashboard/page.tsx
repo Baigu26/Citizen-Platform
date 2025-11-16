@@ -2,7 +2,7 @@ import { getCurrentUser } from '@/lib/supabase-server'
 import { supabase } from '@/lib/supabase'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import AdminNav from '@/components/AdminNav'
+import AdminNav from '@/components/admin/AdminNav'
 
 export default async function AdminDashboardPage() {
   const currentUser = await getCurrentUser()

@@ -1,4 +1,4 @@
-import AdminLoginForm from '@/components/AdminLoginForm'
+import AdminLoginForm from '@/components/admin/AdminLoginForm'
 import Link from 'next/link'
 
 export default function AdminLoginPage() {
