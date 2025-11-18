@@ -3,7 +3,6 @@ import { supabase } from '@/lib/supabase'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminNav from '@/components/admin/AdminNav'
-import AdminAuthDebugger from '@/components/admin/AdminAuthDebugger'
 import AdminSearchBar from '@/components/admin/AdminSearchBar'
 
 export default async function AdminDashboardPage() {
@@ -59,9 +58,6 @@ export default async function AdminDashboardPage() {
     <div className="min-h-screen bg-gray-50">
       <AdminNav currentUser={currentUser} />
       
-      {/* THIS IS THE NEW DEBUG TOOL - IT SHOWS IN BOTTOM RIGHT CORNER */}
-      <AdminAuthDebugger />
-
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
