@@ -75,25 +75,25 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm">
+      <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16 lg:h-20">
             {/* Logo */}
-            <Link href="/landing" className="flex items-center gap-3">
-              <img 
-                src="/Logo.png" 
-                alt="People's Voice Logo" 
-                className="w-12 h-12 object-contain"
+            <Link href="/landing" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <img
+                src="/Logo.png"
+                alt="People's Voice Logo"
+                className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
               />
-              <div>
-                <div className="text-xl font-bold text-gray-900">PEOPLE&apos;S</div>
-                <div className="text-xl font-bold text-gray-900">VOICE</div>
+              <div className="hidden sm:block">
+                <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">PEOPLE&apos;S</div>
+                <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">VOICE</div>
               </div>
             </Link>
 
-            {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
+            {/* Search Bar - Hidden on mobile */}
+            <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
+              <div className="relative w-full">
                 <input
                   type="text"
                   placeholder="Search Community Issues..."
@@ -116,30 +116,40 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
             </div>
 
             {/* Auth Buttons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {currentUser ? (
                 <>
                   <Link
                     href="/create-issue"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"
                   >
-                    New Post
+                    <span className="hidden sm:inline">New Post</span>
+                    <span className="sm:hidden">Post</span>
                   </Link>
-                  <UserMenu profile={currentUser.profile} />
+                  <div className="hidden sm:block">
+                    <UserMenu profile={currentUser.profile} />
+                  </div>
+                  <Link
+                    href="/settings"
+                    className="sm:hidden w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold"
+                  >
+                    {currentUser.profile.full_name?.charAt(0) || 'U'}
+                  </Link>
                 </>
               ) : (
                 <>
                   <Link
                     href="/signup"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"
                   >
                     Sign-Up
                   </Link>
                   <Link
                     href="/login"
-                    className="text-gray-700 hover:text-gray-900 font-medium"
+                    className="text-gray-700 hover:text-gray-900 font-medium text-sm sm:text-base px-2 sm:px-0"
                   >
-                    Sign In
+                    <span className="hidden sm:inline">Sign In</span>
+                    <span className="sm:hidden">Login</span>
                   </Link>
                 </>
               )}
@@ -149,22 +159,22 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
       </nav>
 
       {/* Secondary Navigation */}
-      <div className="bg-blue-900 text-white">
+      <div className="bg-blue-900 text-white overflow-x-auto">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-12 h-14">
-            <Link href="/landing" className="hover:text-blue-200 transition-colors font-medium">
+          <div className="flex items-center justify-start lg:justify-center gap-6 lg:gap-12 h-12 lg:h-14 min-w-max lg:min-w-0">
+            <Link href="/landing" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
               Home
             </Link>
-            <Link href="/about" className="hover:text-blue-200 transition-colors font-medium">
-              About Us
+            <Link href="/about" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
+              About
             </Link>
-            <Link href="/town-selection" className="hover:text-blue-200 transition-colors font-medium">
-              Town Selection
+            <Link href="/town-selection" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
+              Towns
             </Link>
-            <Link href="/trending" className="hover:text-blue-200 transition-colors font-medium">
-              Trending Posts
+            <Link href="/trending" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
+              Trending
             </Link>
-            <Link href="/settings" className="hover:text-blue-200 transition-colors font-medium">
+            <Link href="/settings" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
               Settings
             </Link>
           </div>
@@ -172,13 +182,13 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
       </div>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
         {/* Back Link */}
-        <Link 
-          href={getBackLink()} 
-          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2 mb-6"
+        <Link
+          href={getBackLink()}
+          className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2 mb-4 sm:mb-6 text-sm sm:text-base"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           {getBackText()}
@@ -187,8 +197,8 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
         {/* Issue Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Issue Header */}
-          <div className="border-b border-gray-200 p-6">
-            <div className="flex items-start gap-6">
+          <div className="border-b border-gray-200 p-4 sm:p-6">
+            <div className="flex items-start gap-3 sm:gap-6">
               {/* Vote Section */}
               <VoteButtons
                 issueId={issue.id}
@@ -199,13 +209,13 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
 
               {/* Issue Info */}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
                   {issue.title}
                 </h1>
 
                 {/* Meta badges */}
-                <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <span className="font-medium text-blue-600 text-base">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                  <span className="font-medium text-blue-600 text-sm sm:text-base">
                     📍 {issue.city}
                   </span>
 
@@ -253,8 +263,8 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
           </div>
 
           {/* Issue Description */}
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Description</h2>
+          <div className="p-4 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Description</h2>
             <div className="prose prose-gray max-w-none">
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {issue.description}
@@ -277,18 +287,18 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
 
           {/* Official Response (if exists) - NEW SECTION ADDED HERE */}
           {issue.official_response && (
-            <div className="border-t border-gray-200 px-6 py-6">
-              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6">
-                <div className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="border-t border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
+              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 sm:p-6">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1 a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-blue-900 mb-2">Official Response</h3>
-                    <p className="text-blue-800 leading-relaxed whitespace-pre-wrap mb-3">
+                    <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-2">Official Response</h3>
+                    <p className="text-blue-800 leading-relaxed whitespace-pre-wrap mb-2 sm:mb-3 text-sm sm:text-base">
                       {issue.official_response}
                     </p>
-                    <div className="text-sm text-blue-700">
+                    <div className="text-xs sm:text-sm text-blue-700">
                       {issue.responded_by && (
                         <span className="font-medium">{issue.responded_by}</span>
                       )}
@@ -310,15 +320,15 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
           )}
 
           {/* Comments Section */}
-          <div className="border-t border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
+          <div className="border-t border-gray-200 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                 Comments ({issue.comment_count})
               </h2>
             </div>
 
             {/* Comment Form */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <CommentForm
                 issueId={issue.id}
                 userId={currentUser?.user.id || null}
@@ -338,12 +348,12 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-6 sm:py-8 text-gray-500">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                <p className="font-medium">No comments yet</p>
-                <p className="text-sm mt-1">Be the first to share your thoughts!</p>
+                <p className="font-medium text-sm sm:text-base">No comments yet</p>
+                <p className="text-xs sm:text-sm mt-1">Be the first to share your thoughts!</p>
               </div>
             )}
           </div>
@@ -351,10 +361,10 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-16">
+      <footer className="bg-gray-900 text-white py-6 sm:py-8 mt-12 sm:mt-16">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-wrap justify-between items-center">
-            <div className="flex gap-6 text-sm">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-6">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 sm:gap-6 text-xs sm:text-sm">
               <Link href="/privacy" className="hover:text-gray-300">
                 Privacy Policy
               </Link>
@@ -370,26 +380,26 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
             </div>
 
             <div className="flex gap-4 items-center">
-              <span className="text-sm">Follow Us</span>
+              <span className="text-xs sm:text-sm">Follow Us</span>
               <Link href="#" className="hover:text-gray-300">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </Link>
               <Link href="#" className="hover:text-gray-300">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                 </svg>
               </Link>
               <Link href="#" className="hover:text-gray-300">
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
                 </svg>
               </Link>
             </div>
           </div>
 
-          <div className="mt-8 text-center text-sm text-gray-400">
+          <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-400">
             © 2025 The Peoples Voice. All Rights Reserved. Unauthorized use or reproduction is strictly prohibited.
           </div>
         </div>
