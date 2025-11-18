@@ -15,20 +15,42 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value)
+          })
           supabaseResponse = NextResponse.next({
             request,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              // THESE ARE THE CRITICAL ADDITIONS:
+              path: '/',
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production',
+              httpOnly: true,
+              maxAge: 60 * 60 * 24 * 7, // 7 days
+            })
+          })
         },
       },
     }
   )
 
-  // Refresh session if expired
-  await supabase.auth.getUser()
+  // IMPORTANT: This refreshes the session and keeps the user logged in
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Optional: Protect admin routes
+  if (request.nextUrl.pathname.startsWith('/admin') && 
+      !request.nextUrl.pathname.startsWith('/admin/login') &&
+      !request.nextUrl.pathname.startsWith('/admin/signup') &&
+      !user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/admin/login'
+    return NextResponse.redirect(redirectUrl)
+  }
 
   return supabaseResponse
 }

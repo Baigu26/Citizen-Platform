@@ -25,7 +25,11 @@ export default function AdminLoginForm() {
     setError(null)
 
     try {
+      console.log('🔐 Admin login form: Starting login...')
+      
       const result = await adminLogin(formData.email.trim(), formData.password)
+
+      console.log('🔐 Admin login form: Result:', result)
 
       if (result.error) {
         setError(result.error)
@@ -33,12 +37,16 @@ export default function AdminLoginForm() {
         return
       }
 
-      // Redirect to admin dashboard
-      router.push('/admin/dashboard')
-      router.refresh()
+      console.log('✅ Admin login form: Success! Redirecting...')
+      
+      // Wait a tiny bit for cookies to be set
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Force a hard refresh to the dashboard to pick up the new session
+      window.location.href = '/admin/dashboard'
 
     } catch (err) {
-      console.error('Error logging in:', err)
+      console.error('❌ Admin login form: Error:', err)
       setError('An unexpected error occurred')
       setIsSubmitting(false)
     }
@@ -65,7 +73,8 @@ export default function AdminLoginForm() {
           onChange={handleChange}
           placeholder="official@cityname.gov"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          disabled={isSubmitting}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
       </div>
 
@@ -82,7 +91,8 @@ export default function AdminLoginForm() {
           onChange={handleChange}
           placeholder="Enter your password"
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          disabled={isSubmitting}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
         />
       </div>
 

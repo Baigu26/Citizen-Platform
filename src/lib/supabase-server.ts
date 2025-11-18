@@ -14,13 +14,18 @@ export async function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, {
+                ...options,
+                // THESE ARE THE IMPORTANT ADDITIONS:
+                path: '/',
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+              })
+            })
+          } catch (error) {
+            // This can happen in Server Components
+            // Just ignore it - middleware will handle it
           }
         },
       },
@@ -32,18 +37,26 @@ export async function createClient() {
 export async function getCurrentUser() {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
   
-  if (!user) {
+  if (error || !user) {
+    console.log('❌ getCurrentUser failed:', error?.message || 'No user')
     return null
   }
 
+  console.log('✅ getCurrentUser success:', user.id)
+
   // Get user profile data
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
+
+  if (profileError) {
+    console.log('❌ Profile fetch failed:', profileError.message)
+    return null
+  }
 
   return {
     user: user,

@@ -21,7 +21,9 @@ export default function AdminNav({ currentUser }: AdminNavProps) {
   const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
 
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
     startTransition(async () => {
       await logout()
     })
@@ -57,6 +59,7 @@ export default function AdminNav({ currentUser }: AdminNavProps) {
                 <p className="text-xs text-gray-500">City Official</p>
               </div>
               <button
+                type="button"
                 onClick={handleLogout}
                 disabled={isPending}
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
@@ -83,7 +86,7 @@ export default function AdminNav({ currentUser }: AdminNavProps) {
             <Link
               href="/admin/issue"
               className={`hover:text-blue-200 transition-colors font-medium ${
-                isActive('/admin/issues') ? 'border-b-2 border-white' : ''
+                isActive('/admin/issues') || pathname.startsWith('/admin/issue') ? 'border-b-2 border-white' : ''
               }`}
             >
               All Issues

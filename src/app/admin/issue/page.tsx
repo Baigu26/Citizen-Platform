@@ -25,6 +25,7 @@ export default function AdminIssuesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const filterStatus = searchParams.get('status')
+  const searchQuery = searchParams.get('search')
   
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(true)
@@ -40,7 +41,7 @@ export default function AdminIssuesPage() {
     if (adminCity) {
       fetchIssues()
     }
-  }, [adminCity, filterStatus])
+  }, [adminCity, filterStatus, searchQuery])
 
   const fetchCurrentUser = async () => {
     try {
@@ -77,11 +78,18 @@ export default function AdminIssuesPage() {
         .from('issues')
         .select('*')
         .eq('city', adminCity)
-        .order('created_at', { ascending: false })
 
+      // Apply status filter
       if (filterStatus && filterStatus !== 'all') {
         query = query.eq('status', filterStatus)
       }
+
+      // Apply search filter
+      if (searchQuery && searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+      }
+
+      query = query.order('created_at', { ascending: false })
 
       const { data, error } = await query
 
@@ -117,6 +125,12 @@ export default function AdminIssuesPage() {
   const handleRefresh = () => {
     fetchIssues()
     setSelectedIssues([])
+  }
+
+  const clearSearch = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('search')
+    router.push(`/admin/issue?${params.toString()}`)
   }
 
   if (!currentUser || loading) {
@@ -156,11 +170,37 @@ export default function AdminIssuesPage() {
           </div>
         </div>
 
+        {/* Search Info Banner */}
+        {searchQuery && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="text-blue-900 font-medium">
+                Showing results for &quot;{searchQuery}&quot;
+              </span>
+              <span className="text-blue-700">
+                ({issues.length} {issues.length === 1 ? 'result' : 'results'})
+              </span>
+            </div>
+            <button
+              onClick={clearSearch}
+              className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+            >
+              Clear search
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
+
         {/* Filter Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-6">
           <div className="flex border-b border-gray-200">
             <Link
-              href="/admin/issue"
+              href={`/admin/issue${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`}
               className={`px-6 py-3 font-medium transition-colors ${
                 !filterStatus || filterStatus === 'all'
                   ? 'border-b-2 border-blue-600 text-blue-600'
@@ -170,7 +210,7 @@ export default function AdminIssuesPage() {
               All ({issues.length})
             </Link>
             <Link
-              href="/admin/issue?status=Open"
+              href={`/admin/issue?status=Open${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
               className={`px-6 py-3 font-medium transition-colors ${
                 filterStatus === 'Open'
                   ? 'border-b-2 border-green-600 text-green-600'
@@ -180,7 +220,7 @@ export default function AdminIssuesPage() {
               Open ({issues.filter(i => i.status === 'Open').length})
             </Link>
             <Link
-              href="/admin/issue?status=In Progress"
+              href={`/admin/issue?status=In Progress${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
               className={`px-6 py-3 font-medium transition-colors ${
                 filterStatus === 'In Progress'
                   ? 'border-b-2 border-yellow-600 text-yellow-600'
@@ -190,7 +230,7 @@ export default function AdminIssuesPage() {
               In Progress ({issues.filter(i => i.status === 'In Progress').length})
             </Link>
             <Link
-              href="/admin/issue?status=Completed"
+              href={`/admin/issue?status=Completed${searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : ''}`}
               className={`px-6 py-3 font-medium transition-colors ${
                 filterStatus === 'Completed'
                   ? 'border-b-2 border-purple-600 text-purple-600'
@@ -301,7 +341,12 @@ export default function AdminIssuesPage() {
               No Issues Found
             </h3>
             <p className="text-gray-600">
-              {filterStatus ? `No ${filterStatus.toLowerCase()} issues in ${adminCity}` : `No issues yet in ${adminCity}`}
+              {searchQuery 
+                ? `No results found for "${searchQuery}"` 
+                : filterStatus 
+                  ? `No ${filterStatus.toLowerCase()} issues in ${adminCity}` 
+                  : `No issues yet in ${adminCity}`
+              }
             </p>
           </div>
         )}

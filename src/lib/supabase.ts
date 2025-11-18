@@ -1,11 +1,12 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 
 // Get environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 // Create a single supabase client for interacting with your database
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// This is the CLIENT-SIDE client that runs in the browser
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
 // Type definitions for our database tables
 export type Issue = {

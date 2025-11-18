@@ -3,11 +3,43 @@ import { getCurrentUser } from '@/lib/supabase-server'
 import UserMenu from '@/components/UserMenu'
 import { supabase } from '@/lib/supabase'
 import { Issue } from '@/lib/supabase'
+import SearchBar from '@/components/SearchBar'
 
-export default async function LandingPage() {
+type PageProps = {
+  searchParams: Promise<{
+    search?: string
+    category?: string
+  }>
+}
+
+export default async function LandingPage({ searchParams }: PageProps) {
   const currentUser = await getCurrentUser()
+  const { search, category } = await searchParams
 
-  // Fetch issues for user's city if logged in
+  // Build query based on filters
+  let query = supabase
+    .from('issues')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  // Apply search filter
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
+  }
+
+  // Apply category filter
+  if (category && category !== 'all') {
+    query = query.eq('category', category)
+  }
+
+  // Limit to user's city if logged in
+  if (currentUser?.profile?.city) {
+    query = query.eq('city', currentUser.profile.city)
+  }
+
+  const { data: issues } = await query.limit(20)
+
+  // Fetch issues for user's city if logged in (for stats)
   let cityIssues: Issue[] = []
   if (currentUser?.profile?.city) {
     const { data } = await supabase
@@ -57,28 +89,9 @@ export default async function LandingPage() {
               </div>
             </Link>
 
-            {/* Search Bar */}
+            {/* Search Bar - NOW FUNCTIONAL */}
             <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search Community Issues..."
-                  className="w-full px-4 py-3 pl-10 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                />
-                <svg
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
+              <SearchBar initialSearch={search || ''} />
             </div>
 
             {/* Auth Buttons */}
@@ -139,17 +152,14 @@ export default async function LandingPage() {
 
       {/* Hero Section with State House Background */}
       <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Background Image using img tag */}
         <img
           src="/StateHouse.jpg"
           alt="Massachusetts State House"
           className="absolute inset-0 w-full h-full object-cover"
         />
         
-        {/* Overlay */}
         <div className="absolute inset-0 bg-blue-900/40 z-10"></div>
 
-        {/* Content */}
         <div className="relative z-20 text-center text-white px-4">
           <h1 className="text-6xl font-bold mb-4 tracking-tight">
             People&apos;s Voice
@@ -175,8 +185,39 @@ export default async function LandingPage() {
         </div>
       </div>
 
+      {/* Filter Bar */}
+      {(search || category) && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-700">
+                  Showing {issues?.length || 0} results
+                </span>
+                {search && (
+                  <span className="text-sm text-gray-600">
+                    for &quot;{search}&quot;
+                  </span>
+                )}
+                {category && category !== 'all' && (
+                  <span className="text-sm text-gray-600">
+                    in {category}
+                  </span>
+                )}
+              </div>
+              <Link
+                href="/landing"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Clear filters
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Issues from Your City Section */}
-      {currentUser && cityIssues.length > 0 && (
+      {currentUser && cityIssues.length > 0 && !search && !category && (
         <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -244,6 +285,96 @@ export default async function LandingPage() {
               </Link>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Search Results */}
+      {(search || category) && issues && (
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            {search ? 'Search Results' : 'Filtered Issues'}
+          </h2>
+
+          {issues.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {issues.map((issue: Issue) => (
+                <Link
+                  key={issue.id}
+                  href={`/issue/${issue.id}`}
+                  className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 line-clamp-2 flex-1">
+                      {issue.title}
+                    </h3>
+                    <span
+                      className={`${getStatusColor(
+                        issue.status
+                      )} text-white text-xs font-semibold px-3 py-1 rounded-full ml-2 flex-shrink-0`}
+                    >
+                      {issue.status}
+                    </span>
+                  </div>
+
+                  <p className="text-blue-600 font-semibold text-sm mb-2">
+                    {issue.city}
+                  </p>
+
+                  <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                    {issue.description}
+                  </p>
+
+                  <div className="flex items-center justify-between text-sm pt-4 border-t border-gray-200">
+                    <div className="flex items-center gap-1 text-blue-600 font-semibold">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                      </svg>
+                      {issue.vote_count} Votes
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-600">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                        />
+                      </svg>
+                      {issue.comment_count} Comments
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <svg
+                className="w-16 h-16 text-gray-400 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No Results Found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Try adjusting your search or filters
+              </p>
+              <Link
+                href="/landing"
+                className="text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Clear all filters
+              </Link>
+            </div>
+          )}
         </div>
       )}
 

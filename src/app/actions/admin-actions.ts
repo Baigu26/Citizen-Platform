@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 export async function adminSignup(formData: {
   email: string
@@ -78,6 +79,10 @@ export async function adminSignup(formData: {
     }
 
     console.log('=== ADMIN SIGNUP SUCCESS ===')
+    
+    // Revalidate to ensure fresh data
+    revalidatePath('/', 'layout')
+    
     return { success: true }
 
   } catch (error) {
@@ -89,6 +94,9 @@ export async function adminSignup(formData: {
 
 export async function adminLogin(email: string, password: string) {
   try {
+    console.log('=== ADMIN LOGIN START ===')
+    console.log('Email:', email)
+    
     const supabase = await createClient()
 
     const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
@@ -97,12 +105,16 @@ export async function adminLogin(email: string, password: string) {
     })
 
     if (loginError) {
+      console.error('Login error:', loginError)
       return { error: loginError.message }
     }
 
     if (!authData.user) {
+      console.error('No user data after login')
       return { error: 'Login failed' }
     }
+
+    console.log('User logged in:', authData.user.id)
 
     // Check if user is admin
     const { data: profile } = await supabase
@@ -112,13 +124,21 @@ export async function adminLogin(email: string, password: string) {
       .single()
 
     if (!profile?.is_admin) {
+      console.log('User is not admin, logging out')
       await supabase.auth.signOut()
       return { error: 'This account is not authorized as a city official' }
     }
 
+    console.log('Admin verified, city:', profile.admin_city)
+    console.log('=== ADMIN LOGIN SUCCESS ===')
+    
+    // Revalidate the entire app layout to ensure fresh session
+    revalidatePath('/', 'layout')
+    
     return { success: true }
 
   } catch (error) {
+    console.error('=== ADMIN LOGIN FAILED ===')
     console.error('Login error:', error)
     return { error: 'Login failed' }
   }
