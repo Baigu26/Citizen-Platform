@@ -1,14 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { adminLogin } from '@/app/actions/admin-actions'
 
 export default function AdminLoginForm() {
-  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -26,9 +23,7 @@ export default function AdminLoginForm() {
 
     try {
       console.log('🔐 Admin login form: Starting login...')
-      
       const result = await adminLogin(formData.email.trim(), formData.password)
-
       console.log('🔐 Admin login form: Result:', result)
 
       if (result.error) {
@@ -38,13 +33,10 @@ export default function AdminLoginForm() {
       }
 
       console.log('✅ Admin login form: Success! Redirecting...')
-      
       // Wait a tiny bit for cookies to be set
       await new Promise(resolve => setTimeout(resolve, 500))
-      
       // Force a hard refresh to the dashboard to pick up the new session
       window.location.href = '/admin/dashboard'
-
     } catch (err) {
       console.error('❌ Admin login form: Error:', err)
       setError('An unexpected error occurred')

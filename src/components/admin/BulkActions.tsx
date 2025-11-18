@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Issue } from '@/lib/supabase'
 
 type BulkActionsProps = {
   selectedIssues: string[]

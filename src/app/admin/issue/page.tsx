@@ -21,6 +21,19 @@ type Issue = {
   official_response: string | null
 }
 
+type CurrentUser = {
+  user: {
+    id: string
+    email?: string
+  }
+  profile: {
+    id: string
+    full_name: string | null
+    admin_city: string | null
+    is_admin: boolean
+  }
+}
+
 export default function AdminIssuesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -30,17 +43,19 @@ export default function AdminIssuesPage() {
   const [issues, setIssues] = useState<Issue[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedIssues, setSelectedIssues] = useState<string[]>([])
-  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
   const [adminCity, setAdminCity] = useState<string>('')
 
   useEffect(() => {
     fetchCurrentUser()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (adminCity) {
       fetchIssues()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminCity, filterStatus, searchQuery])
 
   const fetchCurrentUser = async () => {

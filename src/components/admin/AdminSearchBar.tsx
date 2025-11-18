@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 type AdminSearchBarProps = {
@@ -19,7 +19,6 @@ type Suggestion = {
 
 export default function AdminSearchBar({ adminCity, initialSearch = '' }: AdminSearchBarProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)

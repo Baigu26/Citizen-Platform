@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 
 export async function adminSignup(formData: {
@@ -15,9 +14,8 @@ export async function adminSignup(formData: {
     console.log('=== ADMIN SIGNUP START ===')
     console.log('Email:', formData.email)
     console.log('City:', formData.admin_city)
-    
-    const supabase = await createClient()
 
+    const supabase = await createClient()
     console.log('Supabase client created')
 
     // Create user
@@ -79,12 +77,10 @@ export async function adminSignup(formData: {
     }
 
     console.log('=== ADMIN SIGNUP SUCCESS ===')
-    
+
     // Revalidate to ensure fresh data
     revalidatePath('/', 'layout')
-    
     return { success: true }
-
   } catch (error) {
     console.error('=== ADMIN SIGNUP FAILED ===')
     console.error('Unexpected error:', error)
@@ -96,7 +92,7 @@ export async function adminLogin(email: string, password: string) {
   try {
     console.log('=== ADMIN LOGIN START ===')
     console.log('Email:', email)
-    
+
     const supabase = await createClient()
 
     const { data: authData, error: loginError } = await supabase.auth.signInWithPassword({
@@ -131,12 +127,10 @@ export async function adminLogin(email: string, password: string) {
 
     console.log('Admin verified, city:', profile.admin_city)
     console.log('=== ADMIN LOGIN SUCCESS ===')
-    
+
     // Revalidate the entire app layout to ensure fresh session
     revalidatePath('/', 'layout')
-    
     return { success: true }
-
   } catch (error) {
     console.error('=== ADMIN LOGIN FAILED ===')
     console.error('Login error:', error)

@@ -23,7 +23,7 @@ export async function createClient() {
                 secure: process.env.NODE_ENV === 'production',
               })
             })
-          } catch (error) {
+          } catch {
             // This can happen in Server Components
             // Just ignore it - middleware will handle it
           }
@@ -36,9 +36,8 @@ export async function createClient() {
 // Helper to get current user in server components
 export async function getCurrentUser() {
   const supabase = await createClient()
-  
   const { data: { user }, error } = await supabase.auth.getUser()
-  
+
   if (error || !user) {
     console.log('❌ getCurrentUser failed:', error?.message || 'No user')
     return null
