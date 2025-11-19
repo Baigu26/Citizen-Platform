@@ -314,7 +314,7 @@ export default function AdminIssuesPage() {
                       </div>
 
                       <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                        {issue.description}
+                        {issue.description.replace(/\*\*Why it matters:\*\*\s*/gi, '')}
                       </p>
 
                       <div className="flex items-center gap-6 text-sm text-gray-500">

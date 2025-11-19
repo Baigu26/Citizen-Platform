@@ -192,7 +192,7 @@ export default async function TownSelectionPage() {
             href="/all-cities"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-base sm:text-lg"
           >
-            View All Massachusetts Cities
+            More Cities Coming Soon!
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>

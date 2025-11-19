@@ -208,7 +208,7 @@ export default async function AdminDashboardPage() {
                         {issue.title}
                       </h4>
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
-                        {issue.description}
+                        {issue.description.replace(/\*\*Why it matters:\*\*\s*/gi, '')}
                       </p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span>{issue.vote_count} votes</span>

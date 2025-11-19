@@ -7,6 +7,7 @@ import VoteButtons from '@/components/VoteButtons'
 import CommentForm from '@/components/CommentForm'
 import Comment from '@/components/Comment'
 import UserMenu from '@/components/UserMenu'
+import DeleteIssueButton from '@/components/DeleteIssueButton'
 
 type PageProps = {
   params: Promise<{
@@ -242,32 +243,53 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
                   </span>
                 </div>
 
-                {/* Author and Date */}
-                <div className="flex items-center gap-4 mt-4 text-sm text-gray-500">
-                  {issue.author_name && (
+                {/* Author and Date - WITH DELETE BUTTON */}
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    {issue.author_name && (
+                      <span>
+                        Posted by <span className="font-medium text-gray-700">{issue.author_name}</span>
+                      </span>
+                    )}
+                    <span>•</span>
                     <span>
-                      Posted by <span className="font-medium text-gray-700">{issue.author_name}</span>
+                      {new Date(issue.created_at).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
                     </span>
+                  </div>
+                  
+                  {/* Delete Button - Only shows for post author */}
+                  {currentUser && (
+                    <DeleteIssueButton
+                      issueId={issue.id}
+                      isAuthor={currentUser.user.id === issue.user_id}
+                    />
                   )}
-                  <span>•</span>
-                  <span>
-                    {new Date(issue.created_at).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Issue Description */}
+          {/* Issue Description - WITH BOLD "WHY IT MATTERS" */}
           <div className="p-4 sm:p-6">
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Description</h2>
             <div className="prose prose-gray max-w-none">
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {issue.description}
+                {issue.description.split('\n\n**Why it matters:**\n').map((part: string, index: number) => (
+                  index === 0 ? (
+                    <span key="description">{part}</span>
+                  ) : (
+                    <span key="why-matters">
+                      <br /><br />
+                      <strong>Why it matters:</strong>
+                      <br />
+                      {part}
+                    </span>
+                  )
+                ))}
               </p>
             </div>
 
@@ -285,7 +307,7 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
             )}
           </div>
 
-          {/* Official Response (if exists) - NEW SECTION ADDED HERE */}
+          {/* Official Response (if exists) */}
           {issue.official_response && (
             <div className="border-t border-gray-200 px-4 sm:px-6 py-4 sm:py-6">
               <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 sm:p-6">

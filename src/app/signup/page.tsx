@@ -4,29 +4,61 @@ import Link from 'next/link'
 export default function SignupPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile-optimized Header */}
-      <header className="bg-cyan-600 text-white py-4 sm:py-6 shadow-lg">
-        <div className="max-w-md mx-auto px-4">
-          <Link href="/" className="text-cyan-100 hover:text-white mb-2 inline-flex items-center gap-2 text-sm sm:text-base">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Home
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <Link href="/" className="flex items-center justify-center gap-3">
+            <img 
+              src="/Logo.png" 
+              alt="People's Voice Logo" 
+              className="w-12 h-12 object-contain"
+            />
+            <div className="text-left">
+              <div className="text-lg font-bold text-gray-900">PEOPLE&apos;S</div>
+              <div className="text-lg font-bold text-gray-900">VOICE</div>
+            </div>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold mt-2">Create Account</h1>
-          <p className="text-cyan-100 mt-1 text-sm sm:text-base">Join your community and make your voice heard</p>
         </div>
       </header>
 
-      {/* Main Content - Mobile optimized padding */}
-      <main className="max-w-md mx-auto px-4 py-6 sm:py-8">
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-8">
+      {/* Navigation Bar */}
+      <nav className="bg-blue-900 text-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-8 py-3">
+            <Link href="/" className="hover:text-gray-200 transition-colors">
+              Home
+            </Link>
+            <Link href="/about" className="hover:text-gray-200 transition-colors">
+              About
+            </Link>
+            <Link href="/town-selection" className="hover:text-gray-200 transition-colors">
+              Towns
+            </Link>
+            <Link href="/trending" className="hover:text-gray-200 transition-colors">
+              Trending
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-md mx-auto px-4 py-12">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Create Account
+          </h1>
+          <p className="text-gray-600">
+            Join your community and make your voice heard
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
           <SignupForm />
           
           {/* Login Link */}
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 pt-6 border-t border-gray-200 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="text-cyan-600 hover:text-cyan-700 font-medium">
+            <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
               Log in
             </Link>
           </div>

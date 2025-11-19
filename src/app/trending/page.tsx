@@ -15,6 +15,12 @@ export default async function TrendingPage() {
     .order('comment_count', { ascending: false })
     .limit(20)
 
+  // Helper function to get only the main description (without "Why it matters")
+  const getDescriptionOnly = (fullDescription: string) => {
+    const parts = fullDescription.split('\n\n**Why it matters:**\n')
+    return parts[0] // Return only the first part (the description)
+  }
+
   // Helper function to get status color
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -172,9 +178,9 @@ export default async function TrendingPage() {
                 {/* City */}
                 <p className="text-blue-600 font-semibold mb-2 sm:mb-3 text-sm sm:text-base">{issue.city}</p>
 
-                {/* Description */}
+                {/* Description - FIXED: Only shows description, not "Why it matters" */}
                 <p className="text-gray-600 text-sm line-clamp-3 mb-3 sm:mb-4">
-                  {issue.description}
+                  {getDescriptionOnly(issue.description)}
                 </p>
 
                 {/* Stats */}

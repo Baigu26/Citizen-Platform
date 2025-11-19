@@ -196,7 +196,7 @@ export default async function CityPage({ params }: PageProps) {
                 </div>
 
                 <p className="text-gray-600 text-sm line-clamp-3 mb-3 sm:mb-4">
-                  {issue.description}
+                 {issue.description.replace(/\*\*Why it matters:\*\*\s*/gi, '')}
                 </p>
 
                 <div className="flex items-center justify-between text-xs sm:text-sm pt-3 sm:pt-4 border-t border-gray-200 gap-2">

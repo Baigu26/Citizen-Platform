@@ -65,7 +65,7 @@ export async function createIssue(formData: FormData) {
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
-      .from('issue-images')
+      .from('issue-image')
       .upload(filePath, imageFile, {
         cacheControl: '3600',
         upsert: false
@@ -78,7 +78,7 @@ export async function createIssue(formData: FormData) {
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('issue-images')
+      .from('issue-image')
       .getPublicUrl(filePath)
 
     imageUrl = publicUrl
