@@ -497,7 +497,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             <option value="Economic Development">Economic Development</option>
           </select>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Not sure? Pick the one that fits best — our review team can reclassify later.
+            Not sure? Pick the one that fits best - our review team can reclassify later.
           </p>
         </div>
 
