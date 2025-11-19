@@ -10,7 +10,7 @@ export default function LoginPage() {
           <Link href="/" className="flex items-center justify-center gap-3">
             <img 
               src="/Logo.png" 
-              alt="People's Voice Logo" 
+              alt="Poeple&apos;s Voice Logo" 
               className="w-12 h-12 object-contain"
             />
             <div className="text-left">
@@ -48,7 +48,7 @@ export default function LoginPage() {
             Welcome Back
           </h1>
           <p className="text-gray-600">
-            Log in to your People's Voice account
+            Log in to your People&apos;s Voice account
           </p>
         </div>
 

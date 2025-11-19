@@ -398,7 +398,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800">
                 ⚠️ Found {similarIssues.length} similar {similarIssues.length === 1 ? 'proposal' : 'proposals'}. 
-                We'll show {similarIssues.length === 1 ? 'it' : 'them'} before you post.
+                We&apos;ll show {similarIssues.length === 1 ? 'it' : 'them'} before you post.
               </p>
             </div>
           )}
@@ -549,7 +549,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
               disabled={isSubmitting}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors disabled:cursor-not-allowed text-sm sm:text-base"
             >
-              {isSubmitting ? 'Submitting Proposal...' : 'Submit Proposal'}
+              {isSubmitting ? 'Submitting...' : 'Submit Proposal'}
             </button>
             <Link
               href="/"
