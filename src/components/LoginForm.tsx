@@ -126,7 +126,7 @@ export default function LoginForm() {
         </button>
 
         <p className="text-xs text-gray-500 text-center">
-          You'll receive a one-time verification code via email to sign in securely.
+          You&apos;ll receive a one-time verification code via email to sign in securely.
         </p>
       </form>
     )
@@ -189,7 +189,7 @@ export default function LoginForm() {
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Didn't receive the code?{' '}
+            Didn&apos;t receive the code?{' '}
             {resendCooldown > 0 ? (
               <span className="text-gray-400">
                 Resend in {resendCooldown}s
@@ -208,7 +208,7 @@ export default function LoginForm() {
         </div>
 
         <p className="text-xs text-gray-500 text-center">
-          The code expires in 10 minutes. Check your spam folder if you don't see it.
+          The code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
         </p>
       </form>
     </div>
