@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 
 type SearchBarProps = {
@@ -18,6 +18,7 @@ type Suggestion = {
 export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState(initialSearch)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -67,17 +68,32 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
     return () => clearTimeout(debounceTimer)
   }, [searchQuery])
 
-  const handleSearch = () => {
+  const handleSearch = (e?: React.FormEvent) => {
+    // Prevent default form submission if this is a form event
+    if (e) {
+      e.preventDefault()
+    }
+    
     if (!searchQuery.trim()) return
     
     setShowSuggestions(false)
+    
+    // Determine which page to navigate to based on current pathname
+    let targetPath = '/landing' // default
+    if (pathname?.includes('/trending')) {
+      targetPath = '/trending'
+    } else if (pathname?.includes('/landing')) {
+      targetPath = '/landing'
+    }
+    
     const params = new URLSearchParams(searchParams.toString())
     params.set('search', searchQuery.trim())
-    router.push(`/landing?${params.toString()}`)
+    router.push(`${targetPath}?${params.toString()}`)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.preventDefault() // Prevent default form submission
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
         // Navigate to selected suggestion
         router.push(`/issue/${suggestions[selectedIndex].id}`)
@@ -103,12 +119,21 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
     setSearchQuery('')
     setSuggestions([])
     setShowSuggestions(false)
-    router.push('/landing')
+    
+    // Navigate to current page without search params
+    let targetPath = '/landing'
+    if (pathname?.includes('/trending')) {
+      targetPath = '/trending'
+    } else if (pathname?.includes('/landing')) {
+      targetPath = '/landing'
+    }
+    router.push(targetPath)
   }
 
   return (
     <div ref={wrapperRef} className="relative w-full">
-      <div className="relative">
+      {/* Wrap in form for proper Enter key handling */}
+      <form onSubmit={handleSearch} className="relative">
         {/* Search Icon */}
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           {isLoading ? (
@@ -144,6 +169,7 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
         {/* Clear Button */}
         {searchQuery && (
           <button
+            type="button"
             onClick={clearSearch}
             className="absolute inset-y-0 right-16 flex items-center text-gray-400 hover:text-gray-600"
             title="Clear search"
@@ -164,16 +190,16 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
           </button>
         )}
 
-        {/* Search Button */}
+        {/* Search Button - type="submit" for form submission */}
         <button
-          onClick={handleSearch}
+          type="submit"
           disabled={!searchQuery.trim()}
           className="absolute inset-y-0 right-2 flex items-center px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-md transition-colors disabled:cursor-not-allowed"
           title="Search"
         >
           Search
         </button>
-      </div>
+      </form>
 
       {/* Autocomplete Suggestions Dropdown */}
       {showSuggestions && suggestions.length > 0 && (
@@ -237,7 +263,8 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
           {searchQuery.trim() && (
             <div className="border-t border-gray-200 p-2">
               <button
-                onClick={handleSearch}
+                type="button"
+                onClick={() => handleSearch()}
                 className="w-full px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors font-medium text-left"
               >
                 View all results for &quot;{searchQuery}&quot; →
