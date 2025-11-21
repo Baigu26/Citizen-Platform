@@ -13,10 +13,10 @@ export default async function AboutPage() {
           <div className="flex justify-between items-center h-16 lg:h-20">
             {/* Logo - Smaller on mobile */}
             <Link href="/landing" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <img
-                src="/Logo.png"
-                alt="People's Voice Logo"
-                className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
+              <img 
+                src="/Logo1.png" 
+                alt="People's Voice Logo" 
+                className="w-25 h-25 sm:w-25 sm:h-25 lg:w-25 lg:h-25 object-contain"
               />
               <div className="hidden sm:block">
                 <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">PEOPLE&apos;S</div>
@@ -105,9 +105,9 @@ export default async function AboutPage() {
             {/* Logo */}
             <div className="flex justify-center mb-6 sm:mb-8">
             <img
-              src="/Logo.png"
+              src="/Logo1.png"
               alt="People's Voice Logo"
-              className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+              className="w-40 h-20 sm:w-45 sm:h-45 object-contain"
             />
             </div>
 
