@@ -18,10 +18,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if user is admin
+    // Check if user is admin - fetch both admin_city and city for fallback
     const { data: profile } = await supabase
       .from('profiles')
-      .select('is_admin, admin_city')
+      .select('is_admin, admin_city, city')
       .eq('id', user.id)
       .single()
 
@@ -56,7 +56,9 @@ export async function POST(request: Request) {
       )
     }
 
-    if (issue.city !== profile.admin_city) {
+    // Check city with fallback (admin_city first, then city)
+    const adminCity = profile.admin_city || profile.city
+    if (issue.city !== adminCity) {
       return NextResponse.json(
         { error: 'You can only update issues in your city' },
         { status: 403 }
