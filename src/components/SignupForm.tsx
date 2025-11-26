@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { requestOTP, verifyOTP } from '@/app/actions/auth-actions'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-client'
 
 export default function SignupForm() {
   const router = useRouter()
@@ -82,7 +82,9 @@ export default function SignupForm() {
     const result = await verifyOTP(formData.email, code)
 
     if (result.success) {
-      // Update profile with additional info
+      // Now update the profile with the additional information
+      const supabase = createClient()
+      
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
@@ -96,6 +98,7 @@ export default function SignupForm() {
         console.error('Error updating profile:', updateError)
       }
 
+      // Redirect to home
       router.push('/')
       router.refresh()
     } else {
@@ -290,7 +293,7 @@ export default function SignupForm() {
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Didn&apos;t receive the code?{' '}
+            Didn't receive the code?{' '}
             {resendCooldown > 0 ? (
               <span className="text-gray-400">
                 Resend in {resendCooldown}s
@@ -309,7 +312,7 @@ export default function SignupForm() {
         </div>
 
         <p className="text-xs text-gray-500 text-center">
-          The code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
+          The code expires in 1 hour. <strong>Check your spam and junk folders</strong> if you don't see it.
         </p>
       </form>
     </div>

@@ -67,7 +67,7 @@ function AdminIssuesPage() {
         return
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
@@ -79,7 +79,7 @@ function AdminIssuesPage() {
       }
 
       setCurrentUser({ user, profile })
-      setAdminCity(profile.admin_city)
+      setAdminCity(profile.admin_city || profile.city || '')
     } catch (error) {
       console.error('Error fetching user:', error)
       router.push('/admin/login')

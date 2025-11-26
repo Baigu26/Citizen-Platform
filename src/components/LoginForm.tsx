@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { requestOTP, verifyOTP } from '@/app/actions/auth-actions'
+import Link from 'next/link'
+import { requestLoginOTP, verifyLoginOTP } from '@/app/actions/auth-actions'
 
 export default function LoginForm() {
   const router = useRouter()
@@ -11,14 +12,16 @@ export default function LoginForm() {
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showSignupLink, setShowSignupLink] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
 
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setShowSignupLink(false)
     setLoading(true)
 
-    const result = await requestOTP(email)
+    const result = await requestLoginOTP(email)
 
     if (result.success) {
       setStep('code')
@@ -35,6 +38,10 @@ export default function LoginForm() {
       }, 1000)
     } else {
       setError(result.error || 'Failed to send verification code')
+      // Show signup link if no account exists
+      if (result.noAccount) {
+        setShowSignupLink(true)
+      }
     }
 
     setLoading(false)
@@ -45,7 +52,7 @@ export default function LoginForm() {
     setError('')
     setLoading(true)
 
-    const result = await verifyOTP(email, code)
+    const result = await verifyLoginOTP(email, code)
 
     if (result.success) {
       router.push('/')
@@ -63,7 +70,7 @@ export default function LoginForm() {
     setLoading(true)
     setCode('')
 
-    const result = await requestOTP(email)
+    const result = await requestLoginOTP(email)
 
     if (result.success) {
       setResendCooldown(60)
@@ -88,6 +95,7 @@ export default function LoginForm() {
     setStep('email')
     setCode('')
     setError('')
+    setShowSignupLink(false)
   }
 
   if (step === 'email') {
@@ -96,6 +104,16 @@ export default function LoginForm() {
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
             {error}
+            {showSignupLink && (
+              <div className="mt-2">
+                <Link 
+                  href="/signup" 
+                  className="font-medium text-blue-600 hover:text-blue-800 underline"
+                >
+                  Create an account →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -208,7 +226,7 @@ export default function LoginForm() {
         </div>
 
         <p className="text-xs text-gray-500 text-center">
-          The code expires in 10 minutes. Check your spam folder if you don&apos;t see it.
+          The code expires in 1 hour. Check your spam folder if you don&apos;t see it.
         </p>
       </form>
     </div>

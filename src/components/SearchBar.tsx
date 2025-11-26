@@ -69,7 +69,6 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
   }, [searchQuery])
 
   const handleSearch = (e?: React.FormEvent) => {
-    // Prevent default form submission if this is a form event
     if (e) {
       e.preventDefault()
     }
@@ -78,8 +77,7 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
     
     setShowSuggestions(false)
     
-    // Determine which page to navigate to based on current pathname
-    let targetPath = '/landing' // default
+    let targetPath = '/landing'
     if (pathname?.includes('/trending')) {
       targetPath = '/trending'
     } else if (pathname?.includes('/landing')) {
@@ -93,13 +91,11 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault() // Prevent default form submission
+      e.preventDefault()
       if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-        // Navigate to selected suggestion
         router.push(`/issue/${suggestions[selectedIndex].id}`)
         setShowSuggestions(false)
       } else {
-        // Do full search
         handleSearch()
       }
     } else if (e.key === 'ArrowDown') {
@@ -120,7 +116,6 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
     setSuggestions([])
     setShowSuggestions(false)
     
-    // Navigate to current page without search params
     let targetPath = '/landing'
     if (pathname?.includes('/trending')) {
       targetPath = '/trending'
@@ -132,69 +127,71 @@ export default function SearchBar({ initialSearch = '' }: SearchBarProps) {
 
   return (
     <div ref={wrapperRef} className="relative w-full">
-      {/* Wrap in form for proper Enter key handling */}
-      <form onSubmit={handleSearch} className="relative">
-        {/* Search Icon */}
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          {isLoading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-          ) : (
-            <svg 
-              className="h-5 w-5 text-gray-400" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
+      <form onSubmit={handleSearch} className="flex items-center gap-2">
+        {/* Search Input Container */}
+        <div className="relative flex-1">
+          {/* Search Icon */}
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+            ) : (
+              <svg 
+                className="h-5 w-5 text-gray-400" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                />
+              </svg>
+            )}
+          </div>
+
+          {/* Search Input */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            placeholder="Search Community Issues..."
+            className="w-full px-4 py-3 pl-10 pr-10 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900"
+          />
+
+          {/* Clear Button */}
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute inset-y-0 right-2 flex items-center text-gray-400 hover:text-gray-600"
+              title="Clear search"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-              />
-            </svg>
+              <svg 
+                className="h-5 w-5" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M6 18L18 6M6 6l12 12" 
+                />
+              </svg>
+            </button>
           )}
         </div>
 
-        {/* Search Input */}
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-          placeholder="Search Community Issues..."
-          className="w-full px-4 py-3 pl-10 pr-24 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900"
-        />
-
-        {/* Clear Button */}
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={clearSearch}
-            className="absolute inset-y-0 right-16 flex items-center text-gray-400 hover:text-gray-600"
-            title="Clear search"
-          >
-            <svg 
-              className="h-5 w-5" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M6 18L18 6M6 6l12 12" 
-              />
-            </svg>
-          </button>
-        )}
-
-        {/* Search Button - type="submit" for form submission */}
+        {/* Search Button - Separate from input */}
         <button
           type="submit"
           disabled={!searchQuery.trim()}
-          className="absolute inset-y-0 right-2 flex items-center px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-md transition-colors disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg font-semibold transition-colors disabled:cursor-not-allowed whitespace-nowrap"
           title="Search"
         >
           Search

@@ -3,12 +3,14 @@
 import { Profile } from '@/lib/supabase'
 import { logout } from '@/app/actions'
 import { useTransition } from 'react'
+import Link from 'next/link'
 
 type UserMenuProps = {
   profile: Profile | null
+  isAdmin?: boolean
 }
 
-export default function UserMenu({ profile }: UserMenuProps) {
+export default function UserMenu({ profile, isAdmin = false }: UserMenuProps) {
   const [isPending, startTransition] = useTransition()
 
   const handleLogout = () => {
@@ -39,6 +41,14 @@ export default function UserMenu({ profile }: UserMenuProps) {
         <p className="text-gray-900 font-medium">{profile.full_name || 'User'}</p>
         <p className="text-gray-600 text-sm">{profile.city || 'Unknown'}</p>
       </div>
+      {isAdmin && (
+        <Link
+          href="/admin/dashboard"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Admin
+        </Link>
+      )}
       <button
         onClick={handleLogout}
         disabled={isPending}

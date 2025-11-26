@@ -6,9 +6,10 @@ import { usePathname } from 'next/navigation'
 type NavBarProps = {
   userMenu?: React.ReactNode
   showNewPostButton?: boolean
+  isAdmin?: boolean
 }
 
-export default function NavBar({ userMenu, showNewPostButton = true }: NavBarProps) {
+export default function NavBar({ userMenu, showNewPostButton = true, isAdmin = false }: NavBarProps) {
   const pathname = usePathname()
 
   const isActive = (path: string) => pathname === path
@@ -58,6 +59,14 @@ export default function NavBar({ userMenu, showNewPostButton = true }: NavBarPro
             <div className="flex items-center gap-4">
               {userMenu ? (
                 <>
+                  {isAdmin && (
+                    <Link
+                      href="/admin/dashboard"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
                   {showNewPostButton && (
                     <Link
                       href="/create-issue"
