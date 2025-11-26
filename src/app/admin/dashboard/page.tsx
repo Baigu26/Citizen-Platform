@@ -1,58 +1,136 @@
-import { getCurrentUser } from '@/lib/supabase-server'
-import { supabase } from '@/lib/supabase'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AdminNav from '@/components/admin/AdminNav'
 import AdminSearchBar from '@/components/admin/AdminSearchBar'
+import { supabase } from '@/lib/supabase'
 
-export default async function AdminDashboardPage() {
-  const currentUser = await getCurrentUser()
+type Issue = {
+  id: string
+  title: string
+  description: string
+  status: string
+  city: string
+  vote_count: number
+  comment_count: number
+  created_at: string
+}
 
-  // Check if user is logged in and is admin
-  if (!currentUser) {
-    redirect('/admin/login')
+type CurrentUser = {
+  user: {
+    id: string
+    email?: string
+  }
+  profile: {
+    id: string
+    full_name: string | null
+    admin_city: string | null
+    is_admin: boolean
+  }
+}
+
+export default function AdminDashboardPage() {
+  const router = useRouter()
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
+  const [adminCity, setAdminCity] = useState<string>('')
+  const [loading, setLoading] = useState(true)
+  
+  // Stats
+  const [allIssues, setAllIssues] = useState<Issue[]>([])
+  const [openCount, setOpenCount] = useState(0)
+  const [inProgressCount, setInProgressCount] = useState(0)
+  const [completedCount, setCompletedCount] = useState(0)
+  const [recentIssues, setRecentIssues] = useState<Issue[]>([])
+  const [totalVotes, setTotalVotes] = useState(0)
+  const [totalComments, setTotalComments] = useState(0)
+
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [])
+
+  useEffect(() => {
+    if (adminCity) {
+      fetchStats()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminCity])
+
+  const fetchCurrentUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        router.push('/admin/login')
+        return
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.is_admin) {
+        router.push('/landing')
+        return
+      }
+
+      setCurrentUser({ user, profile })
+      setAdminCity(profile.admin_city || profile.city || '')
+    } catch (error) {
+      console.error('Error fetching user:', error)
+      router.push('/admin/login')
+    }
   }
 
-  if (!currentUser.profile.is_admin) {
-    redirect('/landing')
+  const fetchStats = async () => {
+    setLoading(true)
+    try {
+      // Fetch all issues for this city
+      const { data: issues } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('city', adminCity)
+
+      if (issues) {
+        setAllIssues(issues)
+        setOpenCount(issues.filter(i => i.status === 'Open').length)
+        setInProgressCount(issues.filter(i => i.status === 'In Progress').length)
+        setCompletedCount(issues.filter(i => i.status === 'Completed').length)
+        setTotalVotes(issues.reduce((sum, issue) => sum + (issue.vote_count || 0), 0))
+        setTotalComments(issues.reduce((sum, issue) => sum + (issue.comment_count || 0), 0))
+      }
+
+      // Fetch recent issues
+      const { data: recent } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('city', adminCity)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (recent) {
+        setRecentIssues(recent)
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const adminCity = currentUser.profile.admin_city
-
-  // Fetch statistics for admin's city
-  const { data: allIssues } = await supabase
-    .from('issues')
-    .select('*')
-    .eq('city', adminCity)
-
-  const { data: openIssues } = await supabase
-    .from('issues')
-    .select('*')
-    .eq('city', adminCity)
-    .eq('status', 'Open')
-
-  const { data: inProgressIssues } = await supabase
-    .from('issues')
-    .select('*')
-    .eq('city', adminCity)
-    .eq('status', 'In Progress')
-
-  const { data: completedIssues } = await supabase
-    .from('issues')
-    .select('*')
-    .eq('city', adminCity)
-    .eq('status', 'Completed')
-
-  const { data: recentIssues } = await supabase
-    .from('issues')
-    .select('*')
-    .eq('city', adminCity)
-    .order('created_at', { ascending: false })
-    .limit(5)
-
-  // Calculate total votes and comments
-  const totalVotes = allIssues?.reduce((sum, issue) => sum + (issue.vote_count || 0), 0) || 0
-  const totalComments = allIssues?.reduce((sum, issue) => sum + (issue.comment_count || 0), 0) || 0
+  if (!currentUser || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,7 +145,7 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
-        {/* Search Bar - NEW ADDITION */}
+        {/* Search Bar */}
         <div className="mb-8">
           <AdminSearchBar adminCity={adminCity} />
         </div>
@@ -80,7 +158,7 @@ export default async function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Issues</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">
-                  {allIssues?.length || 0}
+                  {allIssues.length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -97,7 +175,7 @@ export default async function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Open Issues</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
-                  {openIssues?.length || 0}
+                  {openCount}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -114,7 +192,7 @@ export default async function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">In Progress</p>
                 <p className="text-3xl font-bold text-yellow-600 mt-2">
-                  {inProgressIssues?.length || 0}
+                  {inProgressCount}
                 </p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -131,7 +209,7 @@ export default async function AdminDashboardPage() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Completed</p>
                 <p className="text-3xl font-bold text-purple-600 mt-2">
-                  {completedIssues?.length || 0}
+                  {completedCount}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -194,7 +272,7 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          {recentIssues && recentIssues.length > 0 ? (
+          {recentIssues.length > 0 ? (
             <div className="divide-y divide-gray-200">
               {recentIssues.map((issue) => (
                 <Link

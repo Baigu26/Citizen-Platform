@@ -1,5 +1,4 @@
-import { getCurrentUser } from '@/lib/supabase-server'
-import { supabase } from '@/lib/supabase'
+import { getCurrentUser, createClient } from '@/lib/supabase-server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -25,6 +24,9 @@ export default async function AdminIssueDetailPage({ params }: PageProps) {
     redirect('/landing')
   }
 
+  // Use server-side Supabase client for queries
+  const supabase = await createClient()
+
   // Fetch the issue
   const { data: issue, error } = await supabase
     .from('issues')
@@ -36,8 +38,9 @@ export default async function AdminIssueDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Verify issue is from admin's city
-  if (issue.city !== currentUser.profile.admin_city) {
+  // Verify issue is from admin's city (check both admin_city and city fields)
+  const adminCity = currentUser.profile.admin_city || currentUser.profile.city
+  if (issue.city !== adminCity) {
     redirect('/admin/dashboard')
   }
 
@@ -53,15 +56,15 @@ export default async function AdminIssueDetailPage({ params }: PageProps) {
       <AdminNav currentUser={currentUser} />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* Back Link - FIXED */}
+        {/* Back Link */}
         <Link 
-          href="/admin/dashboard" 
+          href="/admin/issue" 
           className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-2 mb-6"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Back to Dashboard
+          Back to All Issues
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
