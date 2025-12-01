@@ -15,7 +15,7 @@ export default function NavBar({ userMenu, showNewPostButton = true, isAdmin = f
   const isActive = (path: string) => pathname === path
 
   return (
-    <>
+    <div className="sticky top-0 z-50">
       {/* Top Navigation Bar */}
       <nav className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,6 +145,6 @@ export default function NavBar({ userMenu, showNewPostButton = true, isAdmin = f
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

@@ -41,102 +41,13 @@ const DRAFT_KEY = 'issue_draft' // Key for localStorage
 // List of major Massachusetts cities
 const MA_CITIES = [
   'Boston',
+  'Somerville',
+  'Brookline',
   'Worcester',
-  'Springfield',
   'Cambridge',
   'Lowell',
-  'Brockton',
-  'Quincy',
-  'Lynn',
-  'New Bedford',
-  'Fall River',
-  'Newton',
-  'Somerville',
-  'Framingham',
-  'Lawrence',
-  'Waltham',
-  'Haverhill',
-  'Malden',
-  'Brookline',
-  'Plymouth',
-  'Medford',
-  'Taunton',
-  'Chicopee',
-  'Weymouth',
-  'Revere',
-  'Peabody',
-  'Methuen',
-  'Barnstable',
-  'Pittsfield',
-  'Attleboro',
-  'Arlington',
-  'Everett',
-  'Salem',
-  'Westfield',
-  'Leominster',
-  'Fitchburg',
-  'Beverly',
-  'Holyoke',
-  'Marlborough',
-  'Woburn',
-  'Chelsea',
-  'Amherst',
   'Braintree',
-  'Shrewsbury',
-  'Dartmouth',
-  'Billerica',
-  'Randolph',
-  'Tewksbury',
-  'Natick',
-  'Northampton',
-  'Gloucester',
-  'Franklin',
-  'Watertown',
-  'Needham',
-  'Chelmsford',
-  'Agawam',
-  'Andover',
-  'West Springfield',
-  'Wellesley',
-  'Melrose',
-  'Milford',
-  'Milton',
-  'Dracut',
-  'Southbridge',
-  'Stoughton',
-  'Lexington',
-  'Burlington',
-  'Easton',
-  'Mansfield',
-  'Westford',
-  'Winchester',
-  'Norwood',
-  'Reading',
-  'Belmont',
-  'Dedham',
-  'Wilmington',
-  'Grafton',
-  'Middleborough',
-  'Gardner',
-  'Danvers',
-  'Auburn',
-  'Wakefield',
-  'Ludlow',
-  'Saugus',
-  'Canton',
-  'Newburyport',
-  'Falmouth',
-  'Winthrop',
-  'Stoneham',
-  'Marshfield',
-  'Acton',
-  'Somerset',
-  'Longmeadow',
-  'North Andover',
-  'Fairhaven',
-  'Bridgewater',
-  'Scituate',
-  'Yarmouth',
+  'Quincy',
 ].sort()
 
 export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
@@ -375,7 +286,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
 
         {/* Title field with duplicate warning */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
             Title <span className="text-red-500">*</span>
           </label>
           <input
@@ -387,9 +298,9 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             placeholder='Example: "Ban single-use plastic bags" or "Require crosswalk lights near schools"'
             maxLength={200}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 bg-white placeholder:text-gray-400"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Give your idea a short, clear title.
           </p>
           
@@ -405,7 +316,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
             What would you like to change? <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -416,15 +327,15 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             placeholder="What rule, law, or regulation would you like to create or change? Focus on the policy itself. What should the city government require, allow, or improve?"
             rows={4}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 bg-white placeholder:text-gray-400"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Describe the policy, law, or regulation you want to create or change.
           </p>
         </div>
 
         <div>
-          <label htmlFor="why_it_matters" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="why_it_matters" className="block text-sm font-medium text-gray-700 mb-2">
             Why it matters <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -435,16 +346,16 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             placeholder="Why should this law exist? What problem or opportunity does it address?"
             rows={4}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none text-gray-900 bg-white placeholder:text-gray-400"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Explain the reasoning and impact of your proposal.
           </p>
         </div>
 
         {/* Image Upload Section */}
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-2">
             Add Photo (Optional)
           </label>
           <input
@@ -453,9 +364,9 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             name="image"
             accept="image/*"
             onChange={handleImageChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 bg-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-50 file:text-cyan-700 hover:file:bg-cyan-100"
           />
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
           </p>
           
@@ -475,7 +386,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         </div>
 
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
             Category <span className="text-red-500">*</span>
           </label>
           <select
@@ -484,7 +395,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             value={formValues.category}
             onChange={handleInputChange}
             required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900"
           >
             <option value="">Select a category</option>
             <option value="Environment & Sustainability">Environment & Sustainability</option>
@@ -496,7 +407,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             <option value="Governance & Transparency">Governance & Transparency</option>
             <option value="Economic Development">Economic Development</option>
           </select>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Not sure? Pick the one that fits best - our review team can reclassify later.
           </p>
         </div>
@@ -504,7 +415,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* City Dropdown */}
           <div>
-            <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
               City <span className="text-red-500">*</span>
             </label>
             <select
@@ -513,7 +424,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
               value={formValues.city}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none bg-white text-gray-900"
             >
               <option value="">Select a city</option>
               {MA_CITIES.map((city) => (
@@ -525,7 +436,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
           </div>
 
           <div>
-            <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 mb-2">
               Zip Code
             </label>
             <input
@@ -537,7 +448,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
               placeholder="e.g., 02101"
               maxLength={5}
               pattern="[0-9]{5}"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none text-gray-900 bg-white placeholder:text-gray-400"
             />
           </div>
         </div>
@@ -553,7 +464,7 @@ export default function CreateIssueForm({ profile }: CreateIssueFormProps) {
             </button>
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 px-4 py-3 font-medium"
+              className="text-gray-600 hover:text-gray-800 px-4 py-3 font-medium"
             >
               Cancel
             </Link>
