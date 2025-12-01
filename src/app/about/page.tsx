@@ -73,7 +73,7 @@ export default async function AboutPage() {
         {/* Secondary Navigation - Horizontal scroll on mobile */}
         <div className="bg-blue-900 text-white overflow-x-auto">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-start lg:justify-center gap-6 lg:gap-12 h-12 lg:h-14 min-w-max lg:min-w-0">
+            <div className="flex items-center justify-center gap-6 lg:gap-12 h-12 lg:h-14">
               <Link href="/landing" className="hover:text-blue-200 transition-colors font-medium text-sm lg:text-base whitespace-nowrap">
                 Home
               </Link>
