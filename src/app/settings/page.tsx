@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import SettingsForm from './SettingsForm'
 import NotificationBell from '@/components/NotificationBell'
+import UserMenu from '@/components/UserMenu'
 
 export default async function SettingsPage() {
   const currentUser = await getCurrentUser()
@@ -22,40 +23,16 @@ export default async function SettingsPage() {
             <div className="flex justify-between items-center h-16 lg:h-20">
               {/* Logo */}
               <Link href="/landing" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-              <img 
+                <img 
                   src="/Logo1.png" 
                   alt="People's Voice Logo" 
                   className="w-25 h-25 sm:w-25 sm:h-25 lg:w-25 lg:h-25 object-contain"
-              />
+                />
                 <div className="hidden sm:block">
                   <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">PEOPLE&apos;S</div>
                   <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">VOICE</div>
                 </div>
               </Link>
-
-              {/* Search Bar - Hidden on mobile */}
-              <div className="hidden md:flex flex-1 max-w-2xl mx-4 lg:mx-8">
-                <div className="relative w-full">
-                  <input
-                    type="text"
-                    placeholder="Search Community Issues..."
-                    className="w-full px-4 py-3 pl-10 bg-gray-100 border-0 rounded-lg focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
-                  />
-                  <svg
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-              </div>
 
               {/* Auth Buttons */}
               <div className="flex items-center gap-2 sm:gap-4">
@@ -67,12 +44,14 @@ export default async function SettingsPage() {
                   <span className="hidden sm:inline">New Post</span>
                   <span className="sm:hidden">Post</span>
                 </Link>
+                <div className="hidden sm:block">
+                  <UserMenu profile={currentUser.profile} />
+                </div>
                 <Link
-                  href="/logout"
-                  className="text-gray-700 hover:text-gray-900 font-medium text-sm sm:text-base px-2 sm:px-0"
+                  href="/settings"
+                  className="sm:hidden w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold"
                 >
-                  <span className="hidden sm:inline">Log Out</span>
-                  <span className="sm:hidden">Logout</span>
+                  {currentUser.profile.full_name?.charAt(0) || 'U'}
                 </Link>
               </div>
             </div>
