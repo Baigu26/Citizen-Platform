@@ -27,7 +27,7 @@ export default async function CreateIssuePage() {
                 <img
                   src="/Logo1.png"
                   alt="People's Voice Logo"
-                  className="w-25 h-25 sm:w-25 sm:h-25 lg:w-25 lg:h-25 object-contain"
+                  className="w-15 h-15 sm:w-16 sm:h-20 lg:w-20 lg:h-20 object-contain"
                 />
                 <div className="hidden sm:block">
                   <div className="text-base sm:text-lg lg:text-xl font-bold text-gray-900">PEOPLE&apos;S</div>
