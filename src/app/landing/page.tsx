@@ -59,7 +59,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
   }
 
   // Fetch user's votes for all displayed issues
-  let userVotes: Record<string, 'up' | 'down'> = {}
+  const userVotes: Record<string, 'up' | 'down'> = {}
   if (currentUser?.user?.id) {
     const serverSupabase = await createClient()
     const allIssueIds = [
@@ -139,7 +139,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
 
                     <NotificationBell />
 
-                    
+
                     <Link
                       href="/create-issue"
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"
