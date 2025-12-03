@@ -92,6 +92,14 @@ export default function AdminNav({ currentUser }: AdminNavProps) {
               All Issues
             </Link>
             <Link
+              href="/admin/reports"
+              className={`hover:text-blue-200 transition-colors font-medium ${
+                isActive('/admin/reports') ? 'border-b-2 border-white' : ''
+              }`}
+            >
+              Reports
+            </Link>
+            <Link
               href="/landing"
               className="hover:text-blue-200 transition-colors font-medium"
             >

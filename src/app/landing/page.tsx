@@ -4,6 +4,9 @@ import UserMenu from '@/components/UserMenu'
 import { supabase } from '@/lib/supabase'
 import { Issue } from '@/lib/supabase'
 import SearchBar from '@/components/SearchBar'
+import CardVoteButtons from '@/components/CardVoteButtons'
+import { createClient } from '@/lib/supabase-server'
+import NotificationBell from '@/components/NotificationBell'
 
 type PageProps = {
   searchParams: Promise<{
@@ -55,10 +58,34 @@ export default async function LandingPage({ searchParams }: PageProps) {
     cityIssues = data || []
   }
 
+  // Fetch user's votes for all displayed issues
+  let userVotes: Record<string, 'up' | 'down'> = {}
+  if (currentUser?.user?.id) {
+    const serverSupabase = await createClient()
+    const allIssueIds = [
+      ...(issues?.map(i => i.id) || []),
+      ...cityIssues.map(i => i.id)
+    ]
+    
+    if (allIssueIds.length > 0) {
+      const { data: votes } = await serverSupabase
+        .from('votes')
+        .select('issue_id, vote_type')
+        .eq('user_id', currentUser.user.id)
+        .in('issue_id', allIssueIds)
+      
+      if (votes) {
+        votes.forEach(vote => {
+          userVotes[vote.issue_id] = vote.vote_type as 'up' | 'down'
+        })
+      }
+    }
+  }
+
   // Helper function to get only the main description (without "Why it matters")
   const getDescriptionOnly = (fullDescription: string) => {
     const parts = fullDescription.split('\n\n**Why it matters:**\n')
-    return parts[0] // Return only the first part (the description)
+    return parts[0]
   }
 
   // Helper function to get status color
@@ -109,6 +136,10 @@ export default async function LandingPage({ searchParams }: PageProps) {
               <div className="flex items-center gap-2 sm:gap-4">
                 {currentUser ? (
                   <>
+
+                    <NotificationBell />
+
+                    
                     <Link
                       href="/create-issue"
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"
@@ -119,28 +150,27 @@ export default async function LandingPage({ searchParams }: PageProps) {
                     <div className="hidden sm:block">
                       <UserMenu profile={currentUser.profile} isAdmin={isAdmin} />
                     </div>
-                    {/* Mobile: Just show initials or icon */}
                     {/* Mobile: Show initials and admin link if admin */}
-                <div className="sm:hidden flex items-center gap-2">
-                  {isAdmin && (
-                    <Link
-                      href="/admin/dashboard"
-                      className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"
-                      title="Admin Dashboard"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </Link>
-                  )}
-                  <Link
-                    href="/settings"
-                    className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold"
-                  >
-                    {currentUser.profile.full_name?.charAt(0) || 'U'}
-                  </Link>
-                </div>
+                    <div className="sm:hidden flex items-center gap-2">
+                      {isAdmin && (
+                        <Link
+                          href="/admin/dashboard"
+                          className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"
+                          title="Admin Dashboard"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </Link>
+                      )}
+                      <Link
+                        href="/settings"
+                        className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold"
+                      >
+                        {currentUser.profile.full_name?.charAt(0) || 'U'}
+                      </Link>
+                    </div>
                   </>
                 ) : (
                   <>
@@ -308,12 +338,12 @@ export default async function LandingPage({ searchParams }: PageProps) {
                 </p>
 
                 <div className="flex items-center justify-between text-xs sm:text-sm pt-3 sm:pt-4 border-t border-gray-200 gap-2">
-                  <div className="flex items-center gap-1 text-blue-600 font-semibold">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                    </svg>
-                    <span className="whitespace-nowrap">{issue.vote_count}</span>
-                  </div>
+                  <CardVoteButtons
+                    issueId={issue.id}
+                    initialVoteCount={issue.vote_count}
+                    userId={currentUser?.user?.id || null}
+                    currentUserVote={userVotes[issue.id] || null}
+                  />
                   <div className="flex items-center gap-1 text-gray-600">
                     <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -369,12 +399,12 @@ export default async function LandingPage({ searchParams }: PageProps) {
                   </p>
 
                   <div className="flex items-center justify-between text-xs sm:text-sm pt-3 sm:pt-4 border-t border-gray-200 gap-2">
-                    <div className="flex items-center gap-1 text-blue-600 font-semibold">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                      </svg>
-                      <span className="whitespace-nowrap">{issue.vote_count}</span>
-                    </div>
+                    <CardVoteButtons
+                      issueId={issue.id}
+                      initialVoteCount={issue.vote_count}
+                      userId={currentUser?.user?.id || null}
+                      currentUserVote={userVotes[issue.id] || null}
+                    />
                     <div className="flex items-center gap-1 text-gray-600">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -422,7 +452,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* Footer - Mobile optimized - REMOVED City Official Login */}
+      {/* Footer - Mobile optimized */}
       <footer className="bg-gray-900 text-white py-6 sm:py-8">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col sm:flex-row flex-wrap justify-between items-center gap-6">

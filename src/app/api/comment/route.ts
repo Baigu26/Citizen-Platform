@@ -61,7 +61,7 @@ export async function POST(request: Request) {
       ? `Administrator - ${profile.admin_city}` 
       : (profile.full_name || 'Anonymous')
 
-    // Insert the comment - FIXED: Changed variable names
+    // Insert the comment
     const { data: comment, error: insertError } = await supabase
       .from('comments')
       .insert({
@@ -80,6 +80,119 @@ export async function POST(request: Request) {
         { error: 'Failed to post comment' },
         { status: 500 }
       )
+    }
+
+    // --- CREATE NOTIFICATIONS ---
+    
+    // Get the issue to find the author
+    const { data: issue } = await supabase
+      .from('issues')
+      .select('user_id, title')
+      .eq('id', issueId)
+      .single()
+
+    if (issue) {
+      const notifications = []
+
+      if (parentCommentId) {
+        // This is a reply to a comment
+        // Get the parent comment to find who to notify
+        const { data: parentComment } = await supabase
+          .from('comments')
+          .select('user_id, author_name')
+          .eq('id', parentCommentId)
+          .single()
+
+        // Notify the parent comment author (if not the same user)
+        if (parentComment && parentComment.user_id !== user.id) {
+          notifications.push({
+            user_id: parentComment.user_id,
+            type: 'reply',
+            message: `${displayName} replied to your comment`,
+            issue_id: issueId,
+            comment_id: comment.id,
+            triggered_by_user_id: user.id,
+            triggered_by_name: displayName,
+          })
+        }
+
+        // Also notify the issue author if they're not the parent comment author and not the commenter
+        if (issue.user_id && 
+            issue.user_id !== user.id && 
+            issue.user_id !== parentComment?.user_id) {
+          notifications.push({
+            user_id: issue.user_id,
+            type: 'comment',
+            message: `${displayName} commented on your issue "${issue.title}"`,
+            issue_id: issueId,
+            comment_id: comment.id,
+            triggered_by_user_id: user.id,
+            triggered_by_name: displayName,
+          })
+        }
+
+        // Get all other users who have replied to the same parent comment (thread participants)
+        const { data: threadComments } = await supabase
+          .from('comments')
+          .select('user_id')
+          .eq('parent_comment_id', parentCommentId)
+          .neq('user_id', user.id)
+
+        if (threadComments) {
+          const notifiedUserIds = new Set([
+            user.id,
+            parentComment?.user_id,
+            issue.user_id
+          ].filter(Boolean))
+
+          const uniqueThreadUsers = [...new Set(threadComments.map(c => c.user_id))]
+            .filter(uid => !notifiedUserIds.has(uid))
+
+          for (const threadUserId of uniqueThreadUsers) {
+            notifications.push({
+              user_id: threadUserId,
+              type: 'reply',
+              message: `${displayName} also replied in a thread you're part of`,
+              issue_id: issueId,
+              comment_id: comment.id,
+              triggered_by_user_id: user.id,
+              triggered_by_name: displayName,
+            })
+          }
+        }
+
+      } else {
+        // This is a top-level comment on the issue
+        // Notify the issue author (if not the same user)
+        if (issue.user_id && issue.user_id !== user.id) {
+          const notificationType = isAdmin ? 'official_response' : 'comment'
+          const message = isAdmin
+            ? `A city official commented on your issue "${issue.title}"`
+            : `${displayName} commented on your issue "${issue.title}"`
+
+          notifications.push({
+            user_id: issue.user_id,
+            type: notificationType,
+            message,
+            issue_id: issueId,
+            comment_id: comment.id,
+            triggered_by_user_id: user.id,
+            triggered_by_name: displayName,
+          })
+        }
+      }
+
+      // Insert all notifications
+      if (notifications.length > 0) {
+        const { error: notifError } = await supabase
+          .from('notifications')
+          .insert(notifications)
+
+        if (notifError) {
+          console.error('Error creating notifications:', notifError)
+          // Don't fail the request, just log the error
+        }
+      }
     }
 
     // Revalidate the issue page to show new comment
@@ -129,7 +242,7 @@ export async function DELETE(request: Request) {
       .from('comments')
       .delete()
       .eq('id', commentId)
-      .eq('user_id', user.id) // Extra safety check
+      .eq('user_id', user.id)
 
     if (deleteError) {
       console.error('Error deleting comment:', deleteError)

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getCurrentUser } from '@/lib/supabase-server'
 import UserMenu from '@/components/UserMenu'
+import NotificationBell from '@/components/NotificationBell'
 
 export default async function AboutPage() {
   const currentUser = await getCurrentUser()
@@ -30,6 +31,7 @@ export default async function AboutPage() {
               <div className="flex items-center gap-2 sm:gap-4">
                 {currentUser ? (
                   <>
+                    <NotificationBell />
                     <Link
                       href="/create-issue"
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"

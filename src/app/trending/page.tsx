@@ -4,6 +4,7 @@ import UserMenu from '@/components/UserMenu'
 import { supabase } from '@/lib/supabase'
 import { Issue } from '@/lib/supabase'
 import SearchBar from '@/components/SearchBar'
+import NotificationBell from '@/components/NotificationBell'
 
 type PageProps = {
   searchParams: Promise<{
@@ -111,6 +112,7 @@ export default async function TrendingPage({ searchParams }: PageProps) {
               <div className="flex items-center gap-2 sm:gap-4">
                 {currentUser ? (
                   <>
+                    <NotificationBell />
                     <Link
                       href="/create-issue"
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"

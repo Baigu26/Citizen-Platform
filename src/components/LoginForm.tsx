@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { requestLoginOTP, verifyLoginOTP } from '@/app/actions/auth-actions'
+import { requestLoginOTP } from '@/app/actions/auth-actions'
+import { supabase } from '@/lib/supabase'
 
 export default function LoginForm() {
   const router = useRouter()
@@ -38,7 +39,6 @@ export default function LoginForm() {
       }, 1000)
     } else {
       setError(result.error || 'Failed to send verification code')
-      // Show signup link if no account exists
       if (result.noAccount) {
         setShowSignupLink(true)
       }
@@ -52,15 +52,22 @@ export default function LoginForm() {
     setError('')
     setLoading(true)
 
-    const result = await verifyLoginOTP(email, code)
+    // ✅ Verify OTP client-side so cookies persist properly
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'email'
+    })
 
-    if (result.success) {
-      router.push('/')
-      router.refresh()
-    } else {
-      setError(result.error || 'Invalid verification code')
+    if (verifyError || !data.session) {
+      setError(verifyError?.message || 'Invalid verification code')
       setLoading(false)
+      return
     }
+
+    // Success - redirect to home
+    router.push('/')
+    router.refresh()
   }
 
   const handleResendCode = async () => {

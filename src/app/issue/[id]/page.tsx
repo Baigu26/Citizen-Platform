@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/supabase-server'
+import { getCurrentUser, createClient } from '@/lib/supabase-server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -8,6 +8,8 @@ import CommentForm from '@/components/CommentForm'
 import Comment from '@/components/Comment'
 import UserMenu from '@/components/UserMenu'
 import DeleteIssueButton from '@/components/DeleteIssueButton'
+import NotificationBell from '@/components/NotificationBell'
+import ReportButton from '@/components/ReportButton'
 
 type PageProps = {
   params: Promise<{
@@ -18,6 +20,16 @@ type PageProps = {
   }>
 }
 
+type CommentData = {
+  id: string
+  content: string
+  author_name: string
+  created_at: string
+  user_id: string
+  parent_comment_id: string | null
+  replies?: CommentData[]
+}
+
 export default async function IssueDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params
   const { from } = await searchParams
@@ -25,8 +37,11 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
   // Get current user
   const currentUser = await getCurrentUser()
 
+  // Use server client for queries
+  const serverSupabase = await createClient()
+
   // Fetch the specific issue from the database
-  const { data: issue, error } = await supabase
+  const { data: issue, error } = await serverSupabase
     .from('issues')
     .select('*')
     .eq('id', id)
@@ -40,7 +55,7 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
   // Get the current user's vote for this issue (if they're logged in)
   let currentUserVote: 'up' | 'down' | null = null
   if (currentUser) {
-    const { data: voteData } = await supabase
+    const { data: voteData } = await serverSupabase
       .from('votes')
       .select('vote_type')
       .eq('user_id', currentUser.user.id)
@@ -52,19 +67,55 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
     }
   }
 
-  // Get all comments for this issue
-  const { data: comments } = await supabase
+  // Get all comments for this issue (both parent and replies)
+  const { data: allComments } = await serverSupabase
     .from('comments')
     .select('*')
     .eq('issue_id', id)
-    .is('parent_comment_id', null)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
+
+  // Organize comments into threads
+  const organizeComments = (comments: CommentData[] | null): CommentData[] => {
+    if (!comments) return []
+
+    const commentMap = new Map<string, CommentData>()
+    const topLevelComments: CommentData[] = []
+
+    // First pass: create a map of all comments
+    comments.forEach(comment => {
+      commentMap.set(comment.id, { ...comment, replies: [] })
+    })
+
+    // Second pass: organize into hierarchy
+    comments.forEach(comment => {
+      const commentWithReplies = commentMap.get(comment.id)!
+      
+      if (comment.parent_comment_id) {
+        // This is a reply - add to parent's replies
+        const parent = commentMap.get(comment.parent_comment_id)
+        if (parent) {
+          parent.replies = parent.replies || []
+          parent.replies.push(commentWithReplies)
+        }
+      } else {
+        // This is a top-level comment
+        topLevelComments.push(commentWithReplies)
+      }
+    })
+
+    // Sort top-level comments by date (newest first)
+    return topLevelComments.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+  }
+
+  const threadedComments = organizeComments(allComments as CommentData[] | null)
 
   // Determine back link based on where user came from
   const getBackLink = () => {
     if (from === 'trending') return '/trending'
     if (from === 'city') return `/city/${issue.city}`
-    return '/landing' // default to homepage
+    return '/landing'
   }
 
   const getBackText = () => {
@@ -120,6 +171,9 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
             <div className="flex items-center gap-2 sm:gap-4">
               {currentUser ? (
                 <>
+                  {/* Notification Bell */}
+                  <NotificationBell />
+                  
                   <Link
                     href="/create-issue"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 lg:px-6 py-2 lg:py-2.5 rounded-lg font-semibold transition-colors text-sm sm:text-base"
@@ -268,12 +322,18 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
                       isAuthor={currentUser.user.id === issue.user_id}
                     />
                   )}
+
+                  {/* Report Button - Shows for all logged-in users */}
+                  <ReportButton
+                    issueId={issue.id}
+                    userId={currentUser?.user?.id || null}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Issue Description - WITH BOLD "WHY IT MATTERS" */}
+          {/* Issue Description */}
           <div className="p-4 sm:p-6">
             <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Description</h2>
             <div className="prose prose-gray max-w-none">
@@ -313,7 +373,7 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
               <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 sm:p-6">
                 <div className="flex items-start gap-2 sm:gap-3">
                   <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1 a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <div className="flex-1">
                     <h3 className="text-base sm:text-lg font-semibold text-blue-900 mb-2">Official Response</h3>
@@ -357,10 +417,10 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
               />
             </div>
 
-            {/* Comments List */}
-            {comments && comments.length > 0 ? (
+            {/* Comments List - Now Threaded */}
+            {threadedComments && threadedComments.length > 0 ? (
               <div className="space-y-4">
-                {comments.map((comment) => (
+                {threadedComments.map((comment) => (
                   <Comment
                     key={comment.id}
                     comment={comment}
@@ -403,17 +463,12 @@ export default async function IssueDetailPage({ params, searchParams }: PageProp
 
             <div className="flex gap-4 items-center">
               <span className="text-xs sm:text-sm">Follow Us</span>
-              <Link href="#" className="hover:text-gray-300">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              </Link>
-              <Link href="#" className="hover:text-gray-300">
+              <Link href="https://www.instagram.com/peoplesvoicema" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                 </svg>
               </Link>
-              <Link href="#" className="hover:text-gray-300">
+              <Link href="https://www.tiktok.com/@peoplesvoicema" target="_blank" rel="noopener noreferrer" className="hover:text-gray-300">
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
                 </svg>

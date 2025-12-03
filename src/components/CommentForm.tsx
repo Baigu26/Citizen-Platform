@@ -120,11 +120,11 @@ export default function CommentForm({
         rows={3}
         maxLength={2000}
         disabled={isSubmitting}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 dark:text-white dark:bg-gray-800 dark:border-gray-600 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none resize-none disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 bg-white placeholder:text-gray-400"
       />
 
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500 dark:text-gray-400">
+        <span className="text-sm text-gray-500">
           {content.length} / 2000 characters
         </span>
         <button
