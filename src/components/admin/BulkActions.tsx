@@ -47,12 +47,13 @@ export default function BulkActions({
         throw new Error(data.error || 'Failed to update issues')
       }
 
-      alert(`Successfully updated ${selectedCount} issue(s) to "${newStatus}"`)
+      alert(`Successfully updated ${data.affectedCount || selectedCount} issue(s) to "${newStatus}"`)
       onClearSelection()
       onRefresh()
     } catch (error) {
       console.error('Error updating issues:', error)
-      alert('Failed to update issues. Please try again.')
+      const message = error instanceof Error ? error.message : 'Failed to update issues. Please try again.'
+      alert(message)
     } finally {
       setIsProcessing(false)
     }
@@ -81,12 +82,13 @@ export default function BulkActions({
         throw new Error(data.error || 'Failed to update categories')
       }
 
-      alert(`Successfully updated ${selectedCount} issue(s) to category "${newCategory}"`)
+      alert(`Successfully updated ${data.affectedCount || selectedCount} issue(s) to category "${newCategory}"`)
       onClearSelection()
       onRefresh()
     } catch (error) {
       console.error('Error updating categories:', error)
-      alert('Failed to update categories. Please try again.')
+      const message = error instanceof Error ? error.message : 'Failed to update categories. Please try again.'
+      alert(message)
     } finally {
       setIsProcessing(false)
     }
@@ -118,12 +120,13 @@ export default function BulkActions({
         throw new Error(data.error || 'Failed to delete issues')
       }
 
-      alert(`Successfully deleted ${selectedCount} issue(s)`)
+      alert(`Successfully deleted ${data.affectedCount || selectedCount} issue(s)`)
       onClearSelection()
       onRefresh()
     } catch (error) {
       console.error('Error deleting issues:', error)
-      alert('Failed to delete issues. Please try again.')
+      const message = error instanceof Error ? error.message : 'Failed to delete issues. Please try again.'
+      alert(message)
     } finally {
       setIsProcessing(false)
       setShowDeleteConfirm(false)

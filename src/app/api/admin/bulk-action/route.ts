@@ -5,7 +5,6 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     
-    // Get the current logged-in user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
@@ -15,7 +14,6 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if user is admin
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin, admin_city')
@@ -31,7 +29,6 @@ export async function POST(request: Request) {
 
     const { action, issueIds, status, category } = await request.json()
 
-    // Validate input
     if (!action || !issueIds || !Array.isArray(issueIds) || issueIds.length === 0) {
       return NextResponse.json(
         { error: 'Invalid request data' },
@@ -39,7 +36,29 @@ export async function POST(request: Request) {
       )
     }
 
+    // Get valid issue IDs (ones in admin's city)
+    let validIssueIds = issueIds
+
+    if (profile.admin_city && profile.admin_city !== 'all') {
+      const { data: issues } = await supabase
+        .from('issues')
+        .select('id, city')
+        .in('id', issueIds)
+
+      validIssueIds = issues
+        ?.filter(issue => issue.city === profile.admin_city)
+        .map(issue => issue.id) || []
+
+      if (validIssueIds.length === 0) {
+        return NextResponse.json(
+          { error: 'No issues found in your jurisdiction' },
+          { status: 403 }
+        )
+      }
+    }
+
     let result
+    let affectedCount = 0
 
     switch (action) {
       case 'update-status':
@@ -50,40 +69,16 @@ export async function POST(request: Request) {
           )
         }
 
-        // If admin has a city restriction, filter issues
-        if (profile.admin_city && profile.admin_city !== 'all') {
-          const { data: issues } = await supabase
-            .from('issues')
-            .select('id, city')
-            .in('id', issueIds)
+        result = await supabase
+          .from('issues')
+          .update({ 
+            status,
+            updated_at: new Date().toISOString()
+          })
+          .in('id', validIssueIds)
+          .select()
 
-          const validIssueIds = issues
-            ?.filter(issue => issue.city === profile.admin_city)
-            .map(issue => issue.id) || []
-
-          if (validIssueIds.length === 0) {
-            return NextResponse.json(
-              { error: 'No issues found in your jurisdiction' },
-              { status: 403 }
-            )
-          }
-
-          result = await supabase
-            .from('issues')
-            .update({ 
-              status,
-              updated_at: new Date().toISOString()
-            })
-            .in('id', validIssueIds)
-        } else {
-          result = await supabase
-            .from('issues')
-            .update({ 
-              status,
-              updated_at: new Date().toISOString()
-            })
-            .in('id', issueIds)
-        }
+        affectedCount = result.data?.length || 0
         break
 
       case 'update-category':
@@ -94,71 +89,33 @@ export async function POST(request: Request) {
           )
         }
 
-        // If admin has a city restriction, filter issues
-        if (profile.admin_city && profile.admin_city !== 'all') {
-          const { data: issues } = await supabase
-            .from('issues')
-            .select('id, city')
-            .in('id', issueIds)
+        result = await supabase
+          .from('issues')
+          .update({ 
+            category,
+            updated_at: new Date().toISOString()
+          })
+          .in('id', validIssueIds)
+          .select()
 
-          const validIssueIds = issues
-            ?.filter(issue => issue.city === profile.admin_city)
-            .map(issue => issue.id) || []
-
-          if (validIssueIds.length === 0) {
-            return NextResponse.json(
-              { error: 'No issues found in your jurisdiction' },
-              { status: 403 }
-            )
-          }
-
-          result = await supabase
-            .from('issues')
-            .update({ 
-              category,
-              updated_at: new Date().toISOString()
-            })
-            .in('id', validIssueIds)
-        } else {
-          result = await supabase
-            .from('issues')
-            .update({ 
-              category,
-              updated_at: new Date().toISOString()
-            })
-            .in('id', issueIds)
-        }
+        affectedCount = result.data?.length || 0
         break
 
       case 'delete':
-        // If admin has a city restriction, filter issues
-        if (profile.admin_city && profile.admin_city !== 'all') {
-          const { data: issues } = await supabase
-            .from('issues')
-            .select('id, city')
-            .in('id', issueIds)
+        // Use select() to see what was actually deleted
+        result = await supabase
+          .from('issues')
+          .delete()
+          .in('id', validIssueIds)
+          .select()
 
-          const validIssueIds = issues
-            ?.filter(issue => issue.city === profile.admin_city)
-            .map(issue => issue.id) || []
-
-          if (validIssueIds.length === 0) {
-            return NextResponse.json(
-              { error: 'No issues found in your jurisdiction' },
-              { status: 403 }
-            )
-          }
-
-          result = await supabase
-            .from('issues')
-            .delete()
-            .in('id', validIssueIds)
-        } else {
-          result = await supabase
-            .from('issues')
-            .delete()
-            .in('id', issueIds)
-        }
+        affectedCount = result.data?.length || 0
+        
+        console.log('Delete result:', {
+          requestedIds: validIssueIds,
+          deletedCount: affectedCount,
+          error: result.error
+        })
         break
 
       default:
@@ -171,14 +128,23 @@ export async function POST(request: Request) {
     if (result.error) {
       console.error('Error performing bulk action:', result.error)
       return NextResponse.json(
-        { error: 'Failed to perform bulk action' },
+        { error: 'Failed to perform bulk action: ' + result.error.message },
         { status: 500 }
+      )
+    }
+
+    // Check if any rows were actually affected
+    if (affectedCount === 0) {
+      return NextResponse.json(
+        { error: 'No issues were modified. This may be due to permission restrictions.' },
+        { status: 403 }
       )
     }
 
     return NextResponse.json({ 
       success: true,
-      message: `Successfully performed ${action} on ${issueIds.length} issue(s)`
+      affectedCount,
+      message: `Successfully performed ${action} on ${affectedCount} issue(s)`
     })
 
   } catch (error) {
